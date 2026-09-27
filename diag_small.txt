@@ -1,10 +1,10 @@
 === PHASE1 download ===
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  5  933M    5 53.7M    0     0  45.7M      0  0:00:20  0:00:01  0:00:19 45.6M 21  933M   21  204M    0     0  93.6M      0  0:00:09  0:00:02  0:00:07 93.6M 34  933M   34  326M    0     0   102M      0  0:00:09  0:00:03  0:00:06  102M 50  933M   50  473M    0     0   113M      0  0:00:08  0:00:04  0:00:04  113M 67  933M   67  627M    0     0   121M      0  0:00:07  0:00:05  0:00:02  125M 83  933M   83  780M    0     0   126M      0  0:00:07  0:00:06  0:00:01  145M 99  933M   99  932M    0     0   129M      0  0:00:07  0:00:07 --:--:--  145M100  933M  100  933M    0     0   129M      0  0:00:07  0:00:07 --:--:--  151M
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0  933M    0 8689k    0     0  20.2M      0  0:00:46 --:--:--  0:00:46 20.2M 18  933M   18  169M    0     0   119M      0  0:00:07  0:00:01  0:00:06  119M 35  933M   35  326M    0     0   134M      0  0:00:06  0:00:02  0:00:04  134M 51  933M   51  482M    0     0   140M      0  0:00:06  0:00:03  0:00:03  140M 68  933M   68  640M    0     0   144M      0  0:00:06  0:00:04  0:00:02  144M 85  933M   85  799M    0     0   147M      0  0:00:06  0:00:05  0:00:01  158M100  933M  100  933M    0     0   148M      0  0:00:06  0:00:06 --:--:--  156M
 SIZE=978645996
 === PHASE2 extract ===
-CONFIG_LINES=7545
+TREE=kernel_tree/Makefile
 === PHASE3 KernelSU ===
 [+] Setting up KernelSU...
 Cloning into 'KernelSU'...
@@ -21,15 +21,8 @@ branch 'builtin' set up to track 'origin/builtin'.
 [+] Modified Kconfig.
 [+] Done.
 KSU_DIR=KernelSU
-=== PHASE4 SUSFS ===
+=== PHASE4 SUSFS(只打 50_ 主补丁) ===
 Cloning into 'susfs4ksu'...
---- patch files:
-50_add_susfs_in_gki-android14-6.1.patch
-KernelSU
-fs
-include
---- KernelSU patch dir:
-10_enable_susfs_for_ksu.patch
 patching file drivers/input/input.c
 patching file fs/Makefile
 patching file fs/exec.c
@@ -114,195 +107,53 @@ Hunk #4 succeeded at 747 (offset -1 lines).
 Hunk #5 succeeded at 941 (offset -1 lines).
 Hunk #6 succeeded at 1048 (offset -1 lines).
 PATCH50_EXIT=0
---- rejects:
-can't find file to patch at input line 5
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/Kbuild b/kernel/Kbuild
-|index eecfcece..f15b42e2 100644
-|--- a/kernel/Kbuild
-|+++ b/kernel/Kbuild
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-2 out of 2 hunks ignored
-patching file kernel/Kconfig
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-2 out of 2 hunks ignored -- saving rejects to file kernel/Kconfig.rej
-patching file kernel/Makefile
-Hunk #1 succeeded at 154 with fuzz 2 (offset 121 lines).
-can't find file to patch at input line 183
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/core/init.c b/kernel/core/init.c
-|index d1b37901..0af7fa35 100644
-|--- a/kernel/core/init.c
-|+++ b/kernel/core/init.c
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-8 out of 8 hunks ignored
-patching file kernel/feature/adb_root.c
-Hunk #1 FAILED at 9.
-Hunk #2 FAILED at 19.
-Hunk #3 FAILED at 64.
-Hunk #4 FAILED at 81.
-Hunk #5 succeeded at 229 with fuzz 2 (offset 127 lines).
-Hunk #6 FAILED at 157.
-Hunk #7 FAILED at 167.
-6 out of 7 hunks FAILED -- saving rejects to file kernel/feature/adb_root.c.rej
-patching file kernel/feature/adb_root.h
-Hunk #1 FAILED at 2.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/feature/adb_root.h.rej
-patching file kernel/feature/kernel_umount.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-1 out of 1 hunk ignored -- saving rejects to file kernel/feature/kernel_umount.c.rej
-patching file kernel/feature/selinux_hide.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-11 out of 11 hunks ignored -- saving rejects to file kernel/feature/selinux_hide.c.rej
-patching file kernel/feature/sucompat.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-5 out of 5 hunks ignored -- saving rejects to file kernel/feature/sucompat.c.rej
-patching file kernel/feature/sucompat.h
-Hunk #1 FAILED at 3.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/feature/sucompat.h.rej
-can't find file to patch at input line 1596
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/hook/setuid_hook.c b/kernel/hook/setuid_hook.c
-|index d3f3ac49..1f1e91be 100644
-|--- a/kernel/hook/setuid_hook.c
-|+++ b/kernel/hook/setuid_hook.c
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-2 out of 2 hunks ignored
-can't find file to patch at input line 1769
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/hook/setuid_hook.h b/kernel/hook/setuid_hook.h
-|index 3a3dfea8..b8486238 100644
-|--- a/kernel/hook/setuid_hook.h
-|+++ b/kernel/hook/setuid_hook.h
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-1 out of 1 hunk ignored
-patching file kernel/include/ksu.h
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-1 out of 1 hunk ignored -- saving rejects to file kernel/include/ksu.h.rej
-patching file kernel/policy/allowlist.c
-Hunk #1 succeeded at 254 with fuzz 3 (offset -40 lines).
-patching file kernel/policy/app_profile.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-9 out of 9 hunks ignored -- saving rejects to file kernel/policy/app_profile.c.rej
-patching file kernel/policy/app_profile.h
-Hunk #1 FAILED at 2.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/policy/app_profile.h.rej
-patching file kernel/policy/feature.h
-Hunk #1 FAILED at 2.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/policy/feature.h.rej
-can't find file to patch at input line 1991
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/runtime/boot_event.c b/kernel/runtime/boot_event.c
-|index 7fcb1d9d..99dcb7dd 100644
-|--- a/kernel/runtime/boot_event.c
-|+++ b/kernel/runtime/boot_event.c
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-2 out of 2 hunks ignored
-patching file kernel/runtime/ksud.h
-Hunk #1 FAILED at 8.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/runtime/ksud.h.rej
-can't find file to patch at input line 2043
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/runtime/ksud_integration.c b/kernel/runtime/ksud_integration.c
-|index 6ee9b39d..6f81803c 100644
-|--- a/kernel/runtime/ksud_integration.c
-|+++ b/kernel/runtime/ksud_integration.c
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-11 out of 11 hunks ignored
-patching file kernel/selinux/rules.c
-Hunk #1 succeeded at 161 with fuzz 3.
-patching file kernel/selinux/selinux.c
-Hunk #1 succeeded at 220 with fuzz 3.
-patching file kernel/selinux/selinux.h
-Hunk #1 succeeded at 47 with fuzz 2 (offset 8 lines).
-patching file kernel/sulog/event.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-9 out of 9 hunks ignored -- saving rejects to file kernel/sulog/event.c.rej
-patching file kernel/sulog/event.h
-Hunk #1 succeeded at 5 with fuzz 3.
-Hunk #2 FAILED at 13.
-1 out of 2 hunks FAILED -- saving rejects to file kernel/sulog/event.h.rej
-patching file kernel/supercall/dispatch.c
-Hunk #1 succeeded at 4 with fuzz 3.
-Hunk #2 FAILED at 18.
-Hunk #3 FAILED at 45.
-Hunk #4 FAILED at 76.
-Hunk #5 FAILED at 113.
-Hunk #6 FAILED at 126.
-Hunk #7 FAILED at 376.
-Hunk #8 FAILED at 453.
-Hunk #9 succeeded at 474 with fuzz 2 (offset -31 lines).
-7 out of 9 hunks FAILED -- saving rejects to file kernel/supercall/dispatch.c.rej
-patching file kernel/supercall/supercall.c
-Hunk #1 FAILED at 63.
-Hunk #2 FAILED at 113.
-2 out of 2 hunks FAILED -- saving rejects to file kernel/supercall/supercall.c.rej
-patching file kernel/supercall/supercall.h
-Hunk #1 succeeded at 25 (offset -1 lines).
-PATCH10_EXIT=1
-=== PHASE5 config ===
+=== PHASE5 config(放进 out/) ===
 make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-***
-*** The source tree is not clean, please run 'make ARCH=arm64 mrproper'
-*** in /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree
-***
-make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:676: outputmakefile] Error 1
+  GEN     Makefile
+  HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/kconfig/conf.o
+  HOSTCC  scripts/kconfig/confdata.o
+  HOSTCC  scripts/kconfig/expr.o
+  LEX     scripts/kconfig/lexer.lex.c
+  YACC    scripts/kconfig/parser.tab.[ch]
+  HOSTCC  scripts/kconfig/lexer.lex.o
+  HOSTCC  scripts/kconfig/menu.o
+  HOSTCC  scripts/kconfig/parser.tab.o
+  HOSTCC  scripts/kconfig/preprocess.o
+  HOSTCC  scripts/kconfig/symbol.o
+  HOSTCC  scripts/kconfig/util.o
+  HOSTLD  scripts/kconfig/conf
+#
+# configuration written to .config
+#
 make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-make: *** [Makefile:256: __sub-make] Error 2
-OLDDEFCONFIG_EXIT=2
-total 228
-drwxr-xr-x  2 runner runner   4096 Sep 27 08:08 .
-drwxr-xr-x 31 runner runner  12288 Sep 27 08:08 ..
--rw-r--r--  1 runner runner 213252 Sep 27 08:08 .config
-CONFIG_LOCALVERSION=""
+OLD1_EXIT=0
+make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+  GEN     Makefile
+.config:7824:warning: override: reassigning to symbol KSU
+.config:7825:warning: override: reassigning to symbol KSU_SUSFS
+.config:7827:warning: override: reassigning to symbol KSU_SUSFS_SUS_PATH
+.config:7828:warning: override: reassigning to symbol KSU_SUSFS_SUS_MOUNT
+.config:7829:warning: override: reassigning to symbol KSU_SUSFS_SUS_KSTAT
+.config:7830:warning: override: reassigning to symbol KSU_SUSFS_SPOOF_UNAME
+.config:7831:warning: override: reassigning to symbol KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+.config:7832:warning: override: reassigning to symbol KSU_SUSFS_OPEN_REDIRECT
+.config:7833:warning: override: reassigning to symbol KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+.config:7835:warning: override: reassigning to symbol KSU_SUSFS_ENABLE_LOG
+.config:7836:warning: override: reassigning to symbol LOCALVERSION
+.config:7837:warning: override: reassigning to symbol WERROR
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+OLD2_EXIT=0
+--- KSU/SUSFS 是否生效 ---
+CONFIG_LOCALVERSION="-android14-11"
 CONFIG_LOCALVERSION_AUTO=y
 CONFIG_KSU=y
 CONFIG_KSU_SUSFS=y
-CONFIG_LOCALVERSION="-android14-11"
+KSU_SUSFS_LINES=10
+CONFIG_LINES_TOTAL=7823
 === PHASE6 build ===
 make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
 /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1575: warning: overriding recipe for target 'dtbs'
@@ -314,12 +165,103 @@ make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/k
 /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1608: warning: overriding recipe for target 'dt_binding_check'
 /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1293: warning: ignoring old recipe for target 'dt_binding_check'
   SYNC    include/config/auto.conf.cmd
-***
-*** The source tree is not clean, please run 'make ARCH=arm64 mrproper'
-*** in /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree
-***
-make[2]: *** [../Makefile:676: outputmakefile] Error 1
-make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:825: include/config/auto.conf.cmd] Error 2
+  GEN     Makefile
+  HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/kconfig/conf.o
+  HOSTCC  scripts/kconfig/confdata.o
+  HOSTCC  scripts/kconfig/expr.o
+  HOSTCC  scripts/kconfig/lexer.lex.o
+  HOSTCC  scripts/kconfig/menu.o
+  HOSTCC  scripts/kconfig/parser.tab.o
+  HOSTCC  scripts/kconfig/preprocess.o
+  HOSTCC  scripts/kconfig/symbol.o
+  HOSTCC  scripts/kconfig/util.o
+  HOSTLD  scripts/kconfig/conf
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1575: warning: overriding recipe for target 'dtbs'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1265: warning: ignoring old recipe for target 'dtbs'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1590: warning: overriding recipe for target 'dtbs_install'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1275: warning: ignoring old recipe for target 'dtbs_install'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1600: warning: overriding recipe for target 'scripts_dtc'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1285: warning: ignoring old recipe for target 'scripts_dtc'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1608: warning: overriding recipe for target 'dt_binding_check'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1293: warning: ignoring old recipe for target 'dt_binding_check'
+  GEN     Makefile
+  HOSTCC  arch/arm64/tools/gen-hyprel
+  WRAP    arch/arm64/include/generated/uapi/asm/kvm_para.h
+  WRAP    arch/arm64/include/generated/uapi/asm/errno.h
+  WRAP    arch/arm64/include/generated/uapi/asm/ioctl.h
+  WRAP    arch/arm64/include/generated/uapi/asm/ioctls.h
+  WRAP    arch/arm64/include/generated/uapi/asm/ipcbuf.h
+  WRAP    arch/arm64/include/generated/uapi/asm/msgbuf.h
+  WRAP    arch/arm64/include/generated/uapi/asm/poll.h
+  WRAP    arch/arm64/include/generated/uapi/asm/resource.h
+  WRAP    arch/arm64/include/generated/uapi/asm/sembuf.h
+  WRAP    arch/arm64/include/generated/uapi/asm/shmbuf.h
+  WRAP    arch/arm64/include/generated/uapi/asm/siginfo.h
+  WRAP    arch/arm64/include/generated/uapi/asm/socket.h
+  WRAP    arch/arm64/include/generated/uapi/asm/sockios.h
+  WRAP    arch/arm64/include/generated/uapi/asm/stat.h
+  WRAP    arch/arm64/include/generated/uapi/asm/swab.h
+  WRAP    arch/arm64/include/generated/uapi/asm/termbits.h
+  WRAP    arch/arm64/include/generated/uapi/asm/termios.h
+  WRAP    arch/arm64/include/generated/uapi/asm/types.h
+  HOSTCC  scripts/dtc/dtc.o
+  HOSTCC  scripts/dtc/flattree.o
+  UPD     include/config/kernel.release
+  HOSTCC  scripts/dtc/fstree.o
+  WRAP    arch/arm64/include/generated/asm/early_ioremap.h
+  WRAP    arch/arm64/include/generated/asm/mcs_spinlock.h
+  WRAP    arch/arm64/include/generated/asm/qrwlock.h
+  WRAP    arch/arm64/include/generated/asm/qspinlock.h
+  WRAP    arch/arm64/include/generated/asm/parport.h
+  WRAP    arch/arm64/include/generated/asm/user.h
+  WRAP    arch/arm64/include/generated/asm/bugs.h
+  WRAP    arch/arm64/include/generated/asm/delay.h
+  WRAP    arch/arm64/include/generated/asm/div64.h
+  WRAP    arch/arm64/include/generated/asm/dma-mapping.h
+  WRAP    arch/arm64/include/generated/asm/dma.h
+  WRAP    arch/arm64/include/generated/asm/emergency-restart.h
+  WRAP    arch/arm64/include/generated/asm/hw_irq.h
+  WRAP    arch/arm64/include/generated/asm/irq_regs.h
+  WRAP    arch/arm64/include/generated/asm/kdebug.h
+  WRAP    arch/arm64/include/generated/asm/kmap_size.h
+  UPD     include/generated/uapi/linux/version.h
+  WRAP    arch/arm64/include/generated/asm/local.h
+  WRAP    arch/arm64/include/generated/asm/local64.h
+  WRAP    arch/arm64/include/generated/asm/mmiowb.h
+  WRAP    arch/arm64/include/generated/asm/msi.h
+  WRAP    arch/arm64/include/generated/asm/serial.h
+  WRAP    arch/arm64/include/generated/asm/softirq_stack.h
+  WRAP    arch/arm64/include/generated/asm/switch_to.h
+  WRAP    arch/arm64/include/generated/asm/trace_clock.h
+  WRAP    arch/arm64/include/generated/asm/unaligned.h
+  WRAP    arch/arm64/include/generated/asm/vga.h
+  GEN     include/generated/autoksyms.h
+  HOSTCC  scripts/dtc/data.o
+ERROR: '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/abi_symbollist.raw' whitelist file not found
+make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1339: include/generated/autoksyms.h] Error 1
+make[1]: *** Waiting for unfinished jobs....
+  HOSTCC  scripts/dtc/livetree.o
+  HOSTCC  scripts/dtc/treesource.o
+  HOSTCC  scripts/dtc/srcpos.o
+  HOSTCC  scripts/dtc/checks.o
+  HOSTCC  scripts/dtc/util.o
+  LEX     scripts/dtc/dtc-lexer.lex.c
+  YACC    scripts/dtc/dtc-parser.tab.[ch]
+  HOSTCC  scripts/dtc/libfdt/fdt.o
+  HOSTCC  scripts/dtc/libfdt/fdt_ro.o
+  HOSTCC  scripts/dtc/libfdt/fdt_wip.o
+  HOSTCC  scripts/dtc/libfdt/fdt_sw.o
+  HOSTCC  scripts/dtc/libfdt/fdt_rw.o
+  HOSTCC  scripts/dtc/libfdt/fdt_strerror.o
+  HOSTCC  scripts/dtc/libfdt/fdt_empty_tree.o
+  HOSTCC  scripts/dtc/libfdt/fdt_addresses.o
+  HOSTCC  scripts/dtc/libfdt/fdt_overlay.o
+  HOSTCC  scripts/dtc/fdtoverlay.o
+  HOSTCC  scripts/dtc/dtc-lexer.lex.o
+  HOSTCC  scripts/dtc/dtc-parser.tab.o
+  HOSTLD  scripts/dtc/fdtoverlay
+  HOSTLD  scripts/dtc/dtc
 make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
 make: *** [Makefile:256: __sub-make] Error 2
 BUILD_EXIT=2
@@ -329,10 +271,10 @@ SUSFS_SYMBOLS=0
 === PHASE1 download ===
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  5  933M    5 53.7M    0     0  45.7M      0  0:00:20  0:00:01  0:00:19 45.6M 21  933M   21  204M    0     0  93.6M      0  0:00:09  0:00:02  0:00:07 93.6M 34  933M   34  326M    0     0   102M      0  0:00:09  0:00:03  0:00:06  102M 50  933M   50  473M    0     0   113M      0  0:00:08  0:00:04  0:00:04  113M 67  933M   67  627M    0     0   121M      0  0:00:07  0:00:05  0:00:02  125M 83  933M   83  780M    0     0   126M      0  0:00:07  0:00:06  0:00:01  145M 99  933M   99  932M    0     0   129M      0  0:00:07  0:00:07 --:--:--  145M100  933M  100  933M    0     0   129M      0  0:00:07  0:00:07 --:--:--  151M
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0  933M    0 8689k    0     0  20.2M      0  0:00:46 --:--:--  0:00:46 20.2M 18  933M   18  169M    0     0   119M      0  0:00:07  0:00:01  0:00:06  119M 35  933M   35  326M    0     0   134M      0  0:00:06  0:00:02  0:00:04  134M 51  933M   51  482M    0     0   140M      0  0:00:06  0:00:03  0:00:03  140M 68  933M   68  640M    0     0   144M      0  0:00:06  0:00:04  0:00:02  144M 85  933M   85  799M    0     0   147M      0  0:00:06  0:00:05  0:00:01  158M100  933M  100  933M    0     0   148M      0  0:00:06  0:00:06 --:--:--  156M
 SIZE=978645996
 === PHASE2 extract ===
-CONFIG_LINES=7545
+TREE=kernel_tree/Makefile
 === PHASE3 KernelSU ===
 [+] Setting up KernelSU...
 Cloning into 'KernelSU'...
@@ -349,15 +291,8 @@ branch 'builtin' set up to track 'origin/builtin'.
 [+] Modified Kconfig.
 [+] Done.
 KSU_DIR=KernelSU
-=== PHASE4 SUSFS ===
+=== PHASE4 SUSFS(只打 50_ 主补丁) ===
 Cloning into 'susfs4ksu'...
---- patch files:
-50_add_susfs_in_gki-android14-6.1.patch
-KernelSU
-fs
-include
---- KernelSU patch dir:
-10_enable_susfs_for_ksu.patch
 patching file drivers/input/input.c
 patching file fs/Makefile
 patching file fs/exec.c
@@ -442,195 +377,53 @@ Hunk #4 succeeded at 747 (offset -1 lines).
 Hunk #5 succeeded at 941 (offset -1 lines).
 Hunk #6 succeeded at 1048 (offset -1 lines).
 PATCH50_EXIT=0
---- rejects:
-can't find file to patch at input line 5
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/Kbuild b/kernel/Kbuild
-|index eecfcece..f15b42e2 100644
-|--- a/kernel/Kbuild
-|+++ b/kernel/Kbuild
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-2 out of 2 hunks ignored
-patching file kernel/Kconfig
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-2 out of 2 hunks ignored -- saving rejects to file kernel/Kconfig.rej
-patching file kernel/Makefile
-Hunk #1 succeeded at 154 with fuzz 2 (offset 121 lines).
-can't find file to patch at input line 183
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/core/init.c b/kernel/core/init.c
-|index d1b37901..0af7fa35 100644
-|--- a/kernel/core/init.c
-|+++ b/kernel/core/init.c
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-8 out of 8 hunks ignored
-patching file kernel/feature/adb_root.c
-Hunk #1 FAILED at 9.
-Hunk #2 FAILED at 19.
-Hunk #3 FAILED at 64.
-Hunk #4 FAILED at 81.
-Hunk #5 succeeded at 229 with fuzz 2 (offset 127 lines).
-Hunk #6 FAILED at 157.
-Hunk #7 FAILED at 167.
-6 out of 7 hunks FAILED -- saving rejects to file kernel/feature/adb_root.c.rej
-patching file kernel/feature/adb_root.h
-Hunk #1 FAILED at 2.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/feature/adb_root.h.rej
-patching file kernel/feature/kernel_umount.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-1 out of 1 hunk ignored -- saving rejects to file kernel/feature/kernel_umount.c.rej
-patching file kernel/feature/selinux_hide.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-11 out of 11 hunks ignored -- saving rejects to file kernel/feature/selinux_hide.c.rej
-patching file kernel/feature/sucompat.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-5 out of 5 hunks ignored -- saving rejects to file kernel/feature/sucompat.c.rej
-patching file kernel/feature/sucompat.h
-Hunk #1 FAILED at 3.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/feature/sucompat.h.rej
-can't find file to patch at input line 1596
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/hook/setuid_hook.c b/kernel/hook/setuid_hook.c
-|index d3f3ac49..1f1e91be 100644
-|--- a/kernel/hook/setuid_hook.c
-|+++ b/kernel/hook/setuid_hook.c
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-2 out of 2 hunks ignored
-can't find file to patch at input line 1769
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/hook/setuid_hook.h b/kernel/hook/setuid_hook.h
-|index 3a3dfea8..b8486238 100644
-|--- a/kernel/hook/setuid_hook.h
-|+++ b/kernel/hook/setuid_hook.h
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-1 out of 1 hunk ignored
-patching file kernel/include/ksu.h
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-1 out of 1 hunk ignored -- saving rejects to file kernel/include/ksu.h.rej
-patching file kernel/policy/allowlist.c
-Hunk #1 succeeded at 254 with fuzz 3 (offset -40 lines).
-patching file kernel/policy/app_profile.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-9 out of 9 hunks ignored -- saving rejects to file kernel/policy/app_profile.c.rej
-patching file kernel/policy/app_profile.h
-Hunk #1 FAILED at 2.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/policy/app_profile.h.rej
-patching file kernel/policy/feature.h
-Hunk #1 FAILED at 2.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/policy/feature.h.rej
-can't find file to patch at input line 1991
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/runtime/boot_event.c b/kernel/runtime/boot_event.c
-|index 7fcb1d9d..99dcb7dd 100644
-|--- a/kernel/runtime/boot_event.c
-|+++ b/kernel/runtime/boot_event.c
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-2 out of 2 hunks ignored
-patching file kernel/runtime/ksud.h
-Hunk #1 FAILED at 8.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/runtime/ksud.h.rej
-can't find file to patch at input line 2043
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff --git a/kernel/runtime/ksud_integration.c b/kernel/runtime/ksud_integration.c
-|index 6ee9b39d..6f81803c 100644
-|--- a/kernel/runtime/ksud_integration.c
-|+++ b/kernel/runtime/ksud_integration.c
---------------------------
-File to patch: 
-Skip this patch? [y] 
-Skipping patch.
-11 out of 11 hunks ignored
-patching file kernel/selinux/rules.c
-Hunk #1 succeeded at 161 with fuzz 3.
-patching file kernel/selinux/selinux.c
-Hunk #1 succeeded at 220 with fuzz 3.
-patching file kernel/selinux/selinux.h
-Hunk #1 succeeded at 47 with fuzz 2 (offset 8 lines).
-patching file kernel/sulog/event.c
-Reversed (or previously applied) patch detected!  Assume -R? [n] 
-Apply anyway? [n] 
-Skipping patch.
-9 out of 9 hunks ignored -- saving rejects to file kernel/sulog/event.c.rej
-patching file kernel/sulog/event.h
-Hunk #1 succeeded at 5 with fuzz 3.
-Hunk #2 FAILED at 13.
-1 out of 2 hunks FAILED -- saving rejects to file kernel/sulog/event.h.rej
-patching file kernel/supercall/dispatch.c
-Hunk #1 succeeded at 4 with fuzz 3.
-Hunk #2 FAILED at 18.
-Hunk #3 FAILED at 45.
-Hunk #4 FAILED at 76.
-Hunk #5 FAILED at 113.
-Hunk #6 FAILED at 126.
-Hunk #7 FAILED at 376.
-Hunk #8 FAILED at 453.
-Hunk #9 succeeded at 474 with fuzz 2 (offset -31 lines).
-7 out of 9 hunks FAILED -- saving rejects to file kernel/supercall/dispatch.c.rej
-patching file kernel/supercall/supercall.c
-Hunk #1 FAILED at 63.
-Hunk #2 FAILED at 113.
-2 out of 2 hunks FAILED -- saving rejects to file kernel/supercall/supercall.c.rej
-patching file kernel/supercall/supercall.h
-Hunk #1 succeeded at 25 (offset -1 lines).
-PATCH10_EXIT=1
-=== PHASE5 config ===
+=== PHASE5 config(放进 out/) ===
 make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-***
-*** The source tree is not clean, please run 'make ARCH=arm64 mrproper'
-*** in /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree
-***
-make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:676: outputmakefile] Error 1
+  GEN     Makefile
+  HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/kconfig/conf.o
+  HOSTCC  scripts/kconfig/confdata.o
+  HOSTCC  scripts/kconfig/expr.o
+  LEX     scripts/kconfig/lexer.lex.c
+  YACC    scripts/kconfig/parser.tab.[ch]
+  HOSTCC  scripts/kconfig/lexer.lex.o
+  HOSTCC  scripts/kconfig/menu.o
+  HOSTCC  scripts/kconfig/parser.tab.o
+  HOSTCC  scripts/kconfig/preprocess.o
+  HOSTCC  scripts/kconfig/symbol.o
+  HOSTCC  scripts/kconfig/util.o
+  HOSTLD  scripts/kconfig/conf
+#
+# configuration written to .config
+#
 make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-make: *** [Makefile:256: __sub-make] Error 2
-OLDDEFCONFIG_EXIT=2
-total 228
-drwxr-xr-x  2 runner runner   4096 Sep 27 08:08 .
-drwxr-xr-x 31 runner runner  12288 Sep 27 08:08 ..
--rw-r--r--  1 runner runner 213252 Sep 27 08:08 .config
-CONFIG_LOCALVERSION=""
+OLD1_EXIT=0
+make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+  GEN     Makefile
+.config:7824:warning: override: reassigning to symbol KSU
+.config:7825:warning: override: reassigning to symbol KSU_SUSFS
+.config:7827:warning: override: reassigning to symbol KSU_SUSFS_SUS_PATH
+.config:7828:warning: override: reassigning to symbol KSU_SUSFS_SUS_MOUNT
+.config:7829:warning: override: reassigning to symbol KSU_SUSFS_SUS_KSTAT
+.config:7830:warning: override: reassigning to symbol KSU_SUSFS_SPOOF_UNAME
+.config:7831:warning: override: reassigning to symbol KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+.config:7832:warning: override: reassigning to symbol KSU_SUSFS_OPEN_REDIRECT
+.config:7833:warning: override: reassigning to symbol KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+.config:7835:warning: override: reassigning to symbol KSU_SUSFS_ENABLE_LOG
+.config:7836:warning: override: reassigning to symbol LOCALVERSION
+.config:7837:warning: override: reassigning to symbol WERROR
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+OLD2_EXIT=0
+--- KSU/SUSFS 是否生效 ---
+CONFIG_LOCALVERSION="-android14-11"
 CONFIG_LOCALVERSION_AUTO=y
 CONFIG_KSU=y
 CONFIG_KSU_SUSFS=y
-CONFIG_LOCALVERSION="-android14-11"
+KSU_SUSFS_LINES=10
+CONFIG_LINES_TOTAL=7823
 === PHASE6 build ===
 make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
 /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1575: warning: overriding recipe for target 'dtbs'
@@ -642,12 +435,103 @@ make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/k
 /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1608: warning: overriding recipe for target 'dt_binding_check'
 /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1293: warning: ignoring old recipe for target 'dt_binding_check'
   SYNC    include/config/auto.conf.cmd
-***
-*** The source tree is not clean, please run 'make ARCH=arm64 mrproper'
-*** in /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree
-***
-make[2]: *** [../Makefile:676: outputmakefile] Error 1
-make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:825: include/config/auto.conf.cmd] Error 2
+  GEN     Makefile
+  HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/kconfig/conf.o
+  HOSTCC  scripts/kconfig/confdata.o
+  HOSTCC  scripts/kconfig/expr.o
+  HOSTCC  scripts/kconfig/lexer.lex.o
+  HOSTCC  scripts/kconfig/menu.o
+  HOSTCC  scripts/kconfig/parser.tab.o
+  HOSTCC  scripts/kconfig/preprocess.o
+  HOSTCC  scripts/kconfig/symbol.o
+  HOSTCC  scripts/kconfig/util.o
+  HOSTLD  scripts/kconfig/conf
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1575: warning: overriding recipe for target 'dtbs'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1265: warning: ignoring old recipe for target 'dtbs'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1590: warning: overriding recipe for target 'dtbs_install'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1275: warning: ignoring old recipe for target 'dtbs_install'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1600: warning: overriding recipe for target 'scripts_dtc'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1285: warning: ignoring old recipe for target 'scripts_dtc'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1608: warning: overriding recipe for target 'dt_binding_check'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1293: warning: ignoring old recipe for target 'dt_binding_check'
+  GEN     Makefile
+  HOSTCC  arch/arm64/tools/gen-hyprel
+  WRAP    arch/arm64/include/generated/uapi/asm/kvm_para.h
+  WRAP    arch/arm64/include/generated/uapi/asm/errno.h
+  WRAP    arch/arm64/include/generated/uapi/asm/ioctl.h
+  WRAP    arch/arm64/include/generated/uapi/asm/ioctls.h
+  WRAP    arch/arm64/include/generated/uapi/asm/ipcbuf.h
+  WRAP    arch/arm64/include/generated/uapi/asm/msgbuf.h
+  WRAP    arch/arm64/include/generated/uapi/asm/poll.h
+  WRAP    arch/arm64/include/generated/uapi/asm/resource.h
+  WRAP    arch/arm64/include/generated/uapi/asm/sembuf.h
+  WRAP    arch/arm64/include/generated/uapi/asm/shmbuf.h
+  WRAP    arch/arm64/include/generated/uapi/asm/siginfo.h
+  WRAP    arch/arm64/include/generated/uapi/asm/socket.h
+  WRAP    arch/arm64/include/generated/uapi/asm/sockios.h
+  WRAP    arch/arm64/include/generated/uapi/asm/stat.h
+  WRAP    arch/arm64/include/generated/uapi/asm/swab.h
+  WRAP    arch/arm64/include/generated/uapi/asm/termbits.h
+  WRAP    arch/arm64/include/generated/uapi/asm/termios.h
+  WRAP    arch/arm64/include/generated/uapi/asm/types.h
+  HOSTCC  scripts/dtc/dtc.o
+  HOSTCC  scripts/dtc/flattree.o
+  UPD     include/config/kernel.release
+  HOSTCC  scripts/dtc/fstree.o
+  WRAP    arch/arm64/include/generated/asm/early_ioremap.h
+  WRAP    arch/arm64/include/generated/asm/mcs_spinlock.h
+  WRAP    arch/arm64/include/generated/asm/qrwlock.h
+  WRAP    arch/arm64/include/generated/asm/qspinlock.h
+  WRAP    arch/arm64/include/generated/asm/parport.h
+  WRAP    arch/arm64/include/generated/asm/user.h
+  WRAP    arch/arm64/include/generated/asm/bugs.h
+  WRAP    arch/arm64/include/generated/asm/delay.h
+  WRAP    arch/arm64/include/generated/asm/div64.h
+  WRAP    arch/arm64/include/generated/asm/dma-mapping.h
+  WRAP    arch/arm64/include/generated/asm/dma.h
+  WRAP    arch/arm64/include/generated/asm/emergency-restart.h
+  WRAP    arch/arm64/include/generated/asm/hw_irq.h
+  WRAP    arch/arm64/include/generated/asm/irq_regs.h
+  WRAP    arch/arm64/include/generated/asm/kdebug.h
+  WRAP    arch/arm64/include/generated/asm/kmap_size.h
+  UPD     include/generated/uapi/linux/version.h
+  WRAP    arch/arm64/include/generated/asm/local.h
+  WRAP    arch/arm64/include/generated/asm/local64.h
+  WRAP    arch/arm64/include/generated/asm/mmiowb.h
+  WRAP    arch/arm64/include/generated/asm/msi.h
+  WRAP    arch/arm64/include/generated/asm/serial.h
+  WRAP    arch/arm64/include/generated/asm/softirq_stack.h
+  WRAP    arch/arm64/include/generated/asm/switch_to.h
+  WRAP    arch/arm64/include/generated/asm/trace_clock.h
+  WRAP    arch/arm64/include/generated/asm/unaligned.h
+  WRAP    arch/arm64/include/generated/asm/vga.h
+  GEN     include/generated/autoksyms.h
+  HOSTCC  scripts/dtc/data.o
+ERROR: '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/abi_symbollist.raw' whitelist file not found
+make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1339: include/generated/autoksyms.h] Error 1
+make[1]: *** Waiting for unfinished jobs....
+  HOSTCC  scripts/dtc/livetree.o
+  HOSTCC  scripts/dtc/treesource.o
+  HOSTCC  scripts/dtc/srcpos.o
+  HOSTCC  scripts/dtc/checks.o
+  HOSTCC  scripts/dtc/util.o
+  LEX     scripts/dtc/dtc-lexer.lex.c
+  YACC    scripts/dtc/dtc-parser.tab.[ch]
+  HOSTCC  scripts/dtc/libfdt/fdt.o
+  HOSTCC  scripts/dtc/libfdt/fdt_ro.o
+  HOSTCC  scripts/dtc/libfdt/fdt_wip.o
+  HOSTCC  scripts/dtc/libfdt/fdt_sw.o
+  HOSTCC  scripts/dtc/libfdt/fdt_rw.o
+  HOSTCC  scripts/dtc/libfdt/fdt_strerror.o
+  HOSTCC  scripts/dtc/libfdt/fdt_empty_tree.o
+  HOSTCC  scripts/dtc/libfdt/fdt_addresses.o
+  HOSTCC  scripts/dtc/libfdt/fdt_overlay.o
+  HOSTCC  scripts/dtc/fdtoverlay.o
+  HOSTCC  scripts/dtc/dtc-lexer.lex.o
+  HOSTCC  scripts/dtc/dtc-parser.tab.o
+  HOSTLD  scripts/dtc/fdtoverlay
+  HOSTLD  scripts/dtc/dtc
 make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
 make: *** [Makefile:256: __sub-make] Error 2
 BUILD_EXIT=2
