@@ -16,7 +16,9 @@ jobs:
       - name: deps
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm cpio rsync patch
+          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm cpio rsync patch dwarves
+          clang --version | head -1
+          pahole --version || true
 
       - name: run-all
         continue-on-error: true
@@ -50,9 +52,12 @@ jobs:
           cp -r ../susfs4ksu/kernel_patches/include/linux/. ./include/linux/
           patch -p1 --fuzz=3 < 50_add_susfs_in_gki-android14-6.1.patch
           echo "PATCH50_EXIT=$?"
-          echo "=== PHASE5 config(放进 out/) ==="
+          echo "=== PHASE5 config(放进 out/ + 关掉 TRIM) ==="
           rm -f .config
           mkdir -p out && cp $W/device.config out/.config
+          sed -i '/^CONFIG_TRIM_UNUSED_KSYMS=/d; /^CONFIG_UNUSED_KSYMS_WHITELIST=/d' out/.config
+          echo "--- TRIM 关闭后 ---"
+          grep -cE "^CONFIG_TRIM_UNUSED_KSYMS" out/.config
           make ARCH=arm64 LLVM=1 O=out olddefconfig
           E=$?
           echo "OLD1_EXIT=$E"
@@ -60,14 +65,15 @@ jobs:
             echo "--- retry after mrproper ---"
             make ARCH=arm64 mrproper
             mkdir -p out && cp $W/device.config out/.config
+            sed -i '/^CONFIG_TRIM_UNUSED_KSYMS=/d; /^CONFIG_UNUSED_KSYMS_WHITELIST=/d' out/.config
             make ARCH=arm64 LLVM=1 O=out olddefconfig
             echo "OLD1B_EXIT=$?"
           fi
-          printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> out/.config
+          printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_UNUSED_KSYMS_WHITELIST=""' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> out/.config
           make ARCH=arm64 LLVM=1 O=out olddefconfig
           echo "OLD2_EXIT=$?"
-          echo "--- KSU/SUSFS 是否生效 ---"
-          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_LOCALVERSION" out/.config
+          echo "--- 关键开关核对 ---"
+          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_TRIM_UNUSED_KSYMS|^CONFIG_UNUSED_KSYMS_WHITELIST|^CONFIG_LOCALVERSION|^CONFIG_MODULE_SIG=" out/.config
           echo "KSU_SUSFS_LINES=$(grep -c 'CONFIG_KSU_SUSFS' out/.config)"
           echo "CONFIG_LINES_TOTAL=$(wc -l < out/.config)"
           echo "=== PHASE6 build ==="
