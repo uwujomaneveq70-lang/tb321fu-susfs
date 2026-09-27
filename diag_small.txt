@@ -3,7 +3,7 @@ PAHOLE=v1.25
 === PHASE1 download ===
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  5  933M    5 55.9M    0     0  48.6M      0  0:00:19  0:00:01  0:00:18 48.5M 21  933M   21  204M    0     0  95.1M      0  0:00:09  0:00:02  0:00:07 95.1M 36  933M   36  340M    0     0   107M      0  0:00:08  0:00:03  0:00:05  107M 53  933M   53  495M    0     0   119M      0  0:00:07  0:00:04  0:00:03  119M 68  933M   68  636M    0     0   123M      0  0:00:07  0:00:05  0:00:02  128M 88  933M   88  823M    0     0   134M      0  0:00:06  0:00:06 --:--:--  153M100  933M  100  933M    0     0   136M      0  0:00:06  0:00:06 --:--:--  156M
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  3  933M    3 33.0M    0     0   202M      0  0:00:04 --:--:--  0:00:04  201M 41  933M   41  383M    0     0   330M      0  0:00:02  0:00:01  0:00:01  330M 80  933M   80  749M    0     0   346M      0  0:00:02  0:00:02 --:--:--  346M100  933M  100  933M    0     0   347M      0  0:00:02  0:00:02 --:--:--  347M
 SIZE=978645996
 === PHASE2 extract ===
 TREE=kernel_tree/Makefile
@@ -111,7 +111,7 @@ Hunk #6 succeeded at 1048 (offset -1 lines).
 PATCH50_EXIT=0
 === PHASE4B 补 VMA_PAD_START ===
 VMA_PAD_FIX=applied
-=== PHASE4C 补 ksu_handle_post_execveat_sucompat ===
+=== PHASE4C 补 ksu_handle_post_execveat_sucompat(空实现) ===
 SUCOMPAT_FIX=applied
 1
 === PHASE5 config ===
@@ -161,30 +161,26 @@ CONFIG_KSU_SUSFS=y
 CONFIG_DEBUG_INFO_BTF=y
 CONFIG_DEBUG_INFO_BTF_MODULES=y
 KSU_SUSFS_LINES=10
-=== PHASE6 build (带 BTF) ===
-  CC      drivers/hid/wacom_sys.o
-  CC      drivers/iio/industrialio-buffer.o
+=== PHASE6 build ===
   CC      drivers/ras/debugfs.o
-  AR      drivers/hwtracing/intel_th/built-in.a
-  CC      drivers/iio/industrialio-trigger.o
-  CC      drivers/hid/hid-wiimote-core.o
-  AR      drivers/ras/built-in.a
-  CC      drivers/android/binderfs.o
-  CC      drivers/hid/hid-wiimote-modules.o
   AR      drivers/iio/built-in.a
+  AR      drivers/hwtracing/intel_th/built-in.a
+  CC      drivers/hid/hid-wiimote-modules.o
+  CC      drivers/android/binderfs.o
+  CC      drivers/hid/hid-wiimote-debug.o
+  AR      drivers/ras/built-in.a
   CC      drivers/android/binder.o
   CC      drivers/nvmem/core.o
-  CC      drivers/gnss/core.o
-  CC      drivers/hid/hid-wiimote-debug.o
-  AR      drivers/hid/built-in.a
   CC      drivers/android/binder_alloc.o
-  AR      drivers/gnss/built-in.a
-  CC      drivers/interconnect/qcom/icc-common.o
+  AR      drivers/hid/built-in.a
+  CC      drivers/gnss/core.o
   AR      drivers/nvmem/built-in.a
   CC      drivers/android/android_debug_symbols.o
+  AR      drivers/gnss/built-in.a
+  CC      drivers/interconnect/qcom/icc-common.o
+  CC      drivers/android/vendor_hooks.o
   AR      drivers/interconnect/qcom/built-in.a
   CC      drivers/interconnect/core.o
-  CC      drivers/interconnect/bulk.o
 -- SukiSU-Ultra version: 40939 [v4.2.0-b20dee70@builtin]
 -- KERNEL_VERSION: 6.1
 -- KERNEL_TYPE: GKI 2.0
@@ -194,9 +190,9 @@ KSU_SUSFS_LINES=10
 
 -- SUSFS_VERSION: v2.3.0
   CC      drivers/kernelsu/ksu.o
-  CC      drivers/android/vendor_hooks.o
-  AR      drivers/interconnect/built-in.a
+  CC      drivers/interconnect/bulk.o
   CC      drivers/android/debug_kinfo.o
+  AR      drivers/interconnect/built-in.a
   AR      drivers/android/built-in.a
   AR      drivers/kernelsu/built-in.a
   AR      drivers/built-in.a
@@ -211,108 +207,31 @@ KSU_SUSFS_LINES=10
   UPD     include/generated/utsversion.h
   CC      init/version-timestamp.o
   LD      .tmp_vmlinux.btf
-ld.lld: error: undefined symbol: ksu_install_su_fd
->>> referenced by susfs.c:1545 (../fs/susfs.c:1545)
->>>               fs/susfs.o:(ksu_handle_post_execveat_sucompat) in archive vmlinux.a
   BTF     .btf.vmlinux.bin.o
-pahole: .tmp_vmlinux.btf: Invalid argument
   LD      .tmp_vmlinux.kallsyms1
-ld.lld: error: .btf.vmlinux.bin.o: unknown file type
-make[2]: *** [../scripts/Makefile.vmlinux:34: vmlinux] Error 1
-make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1374: vmlinux] Error 2
+  NM      .tmp_vmlinux.kallsyms1.syms
+  KSYMS   .tmp_vmlinux.kallsyms1.S
+  AS      .tmp_vmlinux.kallsyms1.S
+  LD      .tmp_vmlinux.kallsyms2
+  NM      .tmp_vmlinux.kallsyms2.syms
+  KSYMS   .tmp_vmlinux.kallsyms2.S
+  AS      .tmp_vmlinux.kallsyms2.S
+  LD      vmlinux
+  BTFIDS  vmlinux
+  NM      System.map
+  SORTTAB vmlinux
+  OBJCOPY arch/arm64/boot/Image
 make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-make: *** [Makefile:256: __sub-make] Error 2
-BUILD_EXIT=2
-=== PHASE6B 重试(关掉 BTF) ===
-make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-  GEN     Makefile
-  HOSTCC  scripts/basic/fixdep
-  HOSTCC  scripts/kconfig/conf.o
-  HOSTCC  scripts/kconfig/confdata.o
-  HOSTCC  scripts/kconfig/expr.o
-  HOSTCC  scripts/kconfig/lexer.lex.o
-  HOSTCC  scripts/kconfig/menu.o
-  HOSTCC  scripts/kconfig/parser.tab.o
-  HOSTCC  scripts/kconfig/preprocess.o
-  HOSTCC  scripts/kconfig/symbol.o
-  HOSTCC  scripts/kconfig/util.o
-  HOSTLD  scripts/kconfig/conf
-.config:7827:warning: override: reassigning to symbol DEBUG_INFO_BTF
-.config:7828:warning: override: reassigning to symbol DEBUG_INFO_BTF_MODULES
-#
-# configuration written to .config
-#
-make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-  CC      drivers/perf/arm_pmu.o
-  CC      drivers/perf/arm_pmu_platform.o
-  CC      drivers/ras/ras.o
-  CC      drivers/iio/industrialio-trigger.o
-  CC      drivers/hid/hid-wiimote-core.o
-  AR      drivers/perf/built-in.a
-  CC      drivers/hid/hid-wiimote-modules.o
-  AR      drivers/iio/built-in.a
-  CC      drivers/ras/debugfs.o
-  CC      drivers/hid/hid-wiimote-debug.o
-  CC      drivers/hid/usbhid/hid-core.o
-  CC      drivers/android/binderfs.o
-  CC      drivers/nvmem/core.o
-  AR      drivers/ras/built-in.a
-  CC      drivers/hid/usbhid/hiddev.o
-  CC      drivers/android/binder.o
-  CC      drivers/android/binder_alloc.o
-  AR      drivers/nvmem/built-in.a
-  CC      drivers/gnss/core.o
-  AR      drivers/hid/usbhid/built-in.a
-  AR      drivers/hid/built-in.a
-  CC      drivers/android/android_debug_symbols.o
-  CC      drivers/interconnect/core.o
-  AR      drivers/gnss/built-in.a
-  CC      drivers/android/vendor_hooks.o
-  CC      drivers/interconnect/bulk.o
-  CC      drivers/interconnect/qcom/icc-common.o
--- SukiSU-Ultra version: 40939 [v4.2.0-b20dee70@builtin]
--- KERNEL_VERSION: 6.1
--- KERNEL_TYPE: GKI 2.0
--- SukiSU-Ultra: using SUSFS_INLINE_HOOK
--- KPM is disabled
--- SukiSU-Ultra/compat: modern static_key_interface found
-
--- SUSFS_VERSION: v2.3.0
-  CC      drivers/kernelsu/ksu.o
-  AR      drivers/interconnect/qcom/built-in.a
-  AR      drivers/interconnect/built-in.a
-  CC      drivers/android/debug_kinfo.o
-  AR      drivers/android/built-in.a
-  AR      drivers/kernelsu/built-in.a
-  AR      drivers/built-in.a
-  AR      built-in.a
-  AR      vmlinux.a
-  LD      vmlinux.o
-  OBJCOPY modules.builtin.modinfo
-  GEN     modules.builtin
-  GEN     .vmlinux.objs
-  MODPOST vmlinux.symvers
-  CC      .vmlinux.export.o
-  UPD     include/generated/utsversion.h
-  CC      init/version-timestamp.o
-  LD      .tmp_vmlinux.kallsyms1
-ld.lld: error: undefined symbol: ksu_install_su_fd
->>> referenced by susfs.c:1545 (../fs/susfs.c:1545)
->>>               fs/susfs.o:(ksu_handle_post_execveat_sucompat) in archive vmlinux.a
-make[2]: *** [../scripts/Makefile.vmlinux:34: vmlinux] Error 1
-make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1374: vmlinux] Error 2
-make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-make: *** [Makefile:256: __sub-make] Error 2
-BUILD2_EXIT=2
-ls: cannot access 'out/arch/arm64/boot/Image': No such file or directory
-SUSFS_SYMBOLS=0
+BUILD_EXIT=0
+-rwxr-xr-x 1 runner runner 34761216 Sep 27 09:49 out/arch/arm64/boot/Image
+SUSFS_SYMBOLS=77
 ..... [中间省略] .....
 CLANG=Ubuntu clang version 18.1.3 (1ubuntu1)
 PAHOLE=v1.25
 === PHASE1 download ===
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  5  933M    5 55.9M    0     0  48.6M      0  0:00:19  0:00:01  0:00:18 48.5M 21  933M   21  204M    0     0  95.1M      0  0:00:09  0:00:02  0:00:07 95.1M 36  933M   36  340M    0     0   107M      0  0:00:08  0:00:03  0:00:05  107M 53  933M   53  495M    0     0   119M      0  0:00:07  0:00:04  0:00:03  119M 68  933M   68  636M    0     0   123M      0  0:00:07  0:00:05  0:00:02  128M 88  933M   88  823M    0     0   134M      0  0:00:06  0:00:06 --:--:--  153M100  933M  100  933M    0     0   136M      0  0:00:06  0:00:06 --:--:--  156M
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  3  933M    3 33.0M    0     0   202M      0  0:00:04 --:--:--  0:00:04  201M 41  933M   41  383M    0     0   330M      0  0:00:02  0:00:01  0:00:01  330M 80  933M   80  749M    0     0   346M      0  0:00:02  0:00:02 --:--:--  346M100  933M  100  933M    0     0   347M      0  0:00:02  0:00:02 --:--:--  347M
 SIZE=978645996
 === PHASE2 extract ===
 TREE=kernel_tree/Makefile
@@ -420,7 +339,7 @@ Hunk #6 succeeded at 1048 (offset -1 lines).
 PATCH50_EXIT=0
 === PHASE4B 补 VMA_PAD_START ===
 VMA_PAD_FIX=applied
-=== PHASE4C 补 ksu_handle_post_execveat_sucompat ===
+=== PHASE4C 补 ksu_handle_post_execveat_sucompat(空实现) ===
 SUCOMPAT_FIX=applied
 1
 === PHASE5 config ===
@@ -470,30 +389,26 @@ CONFIG_KSU_SUSFS=y
 CONFIG_DEBUG_INFO_BTF=y
 CONFIG_DEBUG_INFO_BTF_MODULES=y
 KSU_SUSFS_LINES=10
-=== PHASE6 build (带 BTF) ===
-  CC      drivers/hid/wacom_sys.o
-  CC      drivers/iio/industrialio-buffer.o
+=== PHASE6 build ===
   CC      drivers/ras/debugfs.o
-  AR      drivers/hwtracing/intel_th/built-in.a
-  CC      drivers/iio/industrialio-trigger.o
-  CC      drivers/hid/hid-wiimote-core.o
-  AR      drivers/ras/built-in.a
-  CC      drivers/android/binderfs.o
-  CC      drivers/hid/hid-wiimote-modules.o
   AR      drivers/iio/built-in.a
+  AR      drivers/hwtracing/intel_th/built-in.a
+  CC      drivers/hid/hid-wiimote-modules.o
+  CC      drivers/android/binderfs.o
+  CC      drivers/hid/hid-wiimote-debug.o
+  AR      drivers/ras/built-in.a
   CC      drivers/android/binder.o
   CC      drivers/nvmem/core.o
-  CC      drivers/gnss/core.o
-  CC      drivers/hid/hid-wiimote-debug.o
-  AR      drivers/hid/built-in.a
   CC      drivers/android/binder_alloc.o
-  AR      drivers/gnss/built-in.a
-  CC      drivers/interconnect/qcom/icc-common.o
+  AR      drivers/hid/built-in.a
+  CC      drivers/gnss/core.o
   AR      drivers/nvmem/built-in.a
   CC      drivers/android/android_debug_symbols.o
+  AR      drivers/gnss/built-in.a
+  CC      drivers/interconnect/qcom/icc-common.o
+  CC      drivers/android/vendor_hooks.o
   AR      drivers/interconnect/qcom/built-in.a
   CC      drivers/interconnect/core.o
-  CC      drivers/interconnect/bulk.o
 -- SukiSU-Ultra version: 40939 [v4.2.0-b20dee70@builtin]
 -- KERNEL_VERSION: 6.1
 -- KERNEL_TYPE: GKI 2.0
@@ -503,9 +418,9 @@ KSU_SUSFS_LINES=10
 
 -- SUSFS_VERSION: v2.3.0
   CC      drivers/kernelsu/ksu.o
-  CC      drivers/android/vendor_hooks.o
-  AR      drivers/interconnect/built-in.a
+  CC      drivers/interconnect/bulk.o
   CC      drivers/android/debug_kinfo.o
+  AR      drivers/interconnect/built-in.a
   AR      drivers/android/built-in.a
   AR      drivers/kernelsu/built-in.a
   AR      drivers/built-in.a
@@ -520,98 +435,21 @@ KSU_SUSFS_LINES=10
   UPD     include/generated/utsversion.h
   CC      init/version-timestamp.o
   LD      .tmp_vmlinux.btf
-ld.lld: error: undefined symbol: ksu_install_su_fd
->>> referenced by susfs.c:1545 (../fs/susfs.c:1545)
->>>               fs/susfs.o:(ksu_handle_post_execveat_sucompat) in archive vmlinux.a
   BTF     .btf.vmlinux.bin.o
-pahole: .tmp_vmlinux.btf: Invalid argument
   LD      .tmp_vmlinux.kallsyms1
-ld.lld: error: .btf.vmlinux.bin.o: unknown file type
-make[2]: *** [../scripts/Makefile.vmlinux:34: vmlinux] Error 1
-make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1374: vmlinux] Error 2
+  NM      .tmp_vmlinux.kallsyms1.syms
+  KSYMS   .tmp_vmlinux.kallsyms1.S
+  AS      .tmp_vmlinux.kallsyms1.S
+  LD      .tmp_vmlinux.kallsyms2
+  NM      .tmp_vmlinux.kallsyms2.syms
+  KSYMS   .tmp_vmlinux.kallsyms2.S
+  AS      .tmp_vmlinux.kallsyms2.S
+  LD      vmlinux
+  BTFIDS  vmlinux
+  NM      System.map
+  SORTTAB vmlinux
+  OBJCOPY arch/arm64/boot/Image
 make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-make: *** [Makefile:256: __sub-make] Error 2
-BUILD_EXIT=2
-=== PHASE6B 重试(关掉 BTF) ===
-make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-  GEN     Makefile
-  HOSTCC  scripts/basic/fixdep
-  HOSTCC  scripts/kconfig/conf.o
-  HOSTCC  scripts/kconfig/confdata.o
-  HOSTCC  scripts/kconfig/expr.o
-  HOSTCC  scripts/kconfig/lexer.lex.o
-  HOSTCC  scripts/kconfig/menu.o
-  HOSTCC  scripts/kconfig/parser.tab.o
-  HOSTCC  scripts/kconfig/preprocess.o
-  HOSTCC  scripts/kconfig/symbol.o
-  HOSTCC  scripts/kconfig/util.o
-  HOSTLD  scripts/kconfig/conf
-.config:7827:warning: override: reassigning to symbol DEBUG_INFO_BTF
-.config:7828:warning: override: reassigning to symbol DEBUG_INFO_BTF_MODULES
-#
-# configuration written to .config
-#
-make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-  CC      drivers/perf/arm_pmu.o
-  CC      drivers/perf/arm_pmu_platform.o
-  CC      drivers/ras/ras.o
-  CC      drivers/iio/industrialio-trigger.o
-  CC      drivers/hid/hid-wiimote-core.o
-  AR      drivers/perf/built-in.a
-  CC      drivers/hid/hid-wiimote-modules.o
-  AR      drivers/iio/built-in.a
-  CC      drivers/ras/debugfs.o
-  CC      drivers/hid/hid-wiimote-debug.o
-  CC      drivers/hid/usbhid/hid-core.o
-  CC      drivers/android/binderfs.o
-  CC      drivers/nvmem/core.o
-  AR      drivers/ras/built-in.a
-  CC      drivers/hid/usbhid/hiddev.o
-  CC      drivers/android/binder.o
-  CC      drivers/android/binder_alloc.o
-  AR      drivers/nvmem/built-in.a
-  CC      drivers/gnss/core.o
-  AR      drivers/hid/usbhid/built-in.a
-  AR      drivers/hid/built-in.a
-  CC      drivers/android/android_debug_symbols.o
-  CC      drivers/interconnect/core.o
-  AR      drivers/gnss/built-in.a
-  CC      drivers/android/vendor_hooks.o
-  CC      drivers/interconnect/bulk.o
-  CC      drivers/interconnect/qcom/icc-common.o
--- SukiSU-Ultra version: 40939 [v4.2.0-b20dee70@builtin]
--- KERNEL_VERSION: 6.1
--- KERNEL_TYPE: GKI 2.0
--- SukiSU-Ultra: using SUSFS_INLINE_HOOK
--- KPM is disabled
--- SukiSU-Ultra/compat: modern static_key_interface found
-
--- SUSFS_VERSION: v2.3.0
-  CC      drivers/kernelsu/ksu.o
-  AR      drivers/interconnect/qcom/built-in.a
-  AR      drivers/interconnect/built-in.a
-  CC      drivers/android/debug_kinfo.o
-  AR      drivers/android/built-in.a
-  AR      drivers/kernelsu/built-in.a
-  AR      drivers/built-in.a
-  AR      built-in.a
-  AR      vmlinux.a
-  LD      vmlinux.o
-  OBJCOPY modules.builtin.modinfo
-  GEN     modules.builtin
-  GEN     .vmlinux.objs
-  MODPOST vmlinux.symvers
-  CC      .vmlinux.export.o
-  UPD     include/generated/utsversion.h
-  CC      init/version-timestamp.o
-  LD      .tmp_vmlinux.kallsyms1
-ld.lld: error: undefined symbol: ksu_install_su_fd
->>> referenced by susfs.c:1545 (../fs/susfs.c:1545)
->>>               fs/susfs.o:(ksu_handle_post_execveat_sucompat) in archive vmlinux.a
-make[2]: *** [../scripts/Makefile.vmlinux:34: vmlinux] Error 1
-make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1374: vmlinux] Error 2
-make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
-make: *** [Makefile:256: __sub-make] Error 2
-BUILD2_EXIT=2
-ls: cannot access 'out/arch/arm64/boot/Image': No such file or directory
-SUSFS_SYMBOLS=0
+BUILD_EXIT=0
+-rwxr-xr-x 1 runner runner 34761216 Sep 27 09:49 out/arch/arm64/boot/Image
+SUSFS_SYMBOLS=77
