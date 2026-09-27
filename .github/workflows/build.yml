@@ -26,6 +26,8 @@ jobs:
           cat > /tmp/all.sh <<'SCRIPT'
           set +e
           W=$GITHUB_WORKSPACE
+          echo "CLANG=$(clang --version 2>/dev/null | head -1)"
+          echo "PAHOLE=$(pahole --version 2>/dev/null)"
           mkdir -p $W/src && cd $W/src
           echo "=== PHASE1 download ==="
           if [ ! -s lenovo.tar.gz ]; then
@@ -42,7 +44,7 @@ jobs:
           cd kernel_tree
           curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
           echo "KSU_DIR=$(ls -d KernelSU 2>/dev/null)"
-          echo "=== PHASE4 SUSFS(只打 50_ 主补丁) ==="
+          echo "=== PHASE4 SUSFS(50_ 主补丁) ==="
           cd $W/src
           rm -rf susfs4ksu
           git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1 susfs4ksu
@@ -52,41 +54,51 @@ jobs:
           cp -r ../susfs4ksu/kernel_patches/include/linux/. ./include/linux/
           patch -p1 --fuzz=3 < 50_add_susfs_in_gki-android14-6.1.patch
           echo "PATCH50_EXIT=$?"
-          echo "=== PHASE4B 补 VMA_PAD_START(OPPO 专有宏) ==="
-          if grep -q "VMA_PAD_START" include/linux/mm.h; then
-            echo "VMA_PAD_FIX=already"
+          echo "=== PHASE4B 补 VMA_PAD_START ==="
+          if grep -q "VMA_PAD_START" include/linux/mm.h; then echo "VMA_PAD_FIX=already"; else printf '\n#ifndef VMA_PAD_START\n#define VMA_PAD_START(vma) ((vma)->vm_start)\n#endif\n' >> include/linux/mm.h; echo "VMA_PAD_FIX=applied"; fi
+          echo "=== PHASE4C 补 ksu_handle_post_execveat_sucompat ==="
+          if grep -q "ksu_handle_post_execveat_sucompat" fs/susfs.c; then
+            echo "SUCOMPAT_FIX=already"
           else
-            printf '\n#ifndef VMA_PAD_START\n#define VMA_PAD_START(vma) ((vma)->vm_start)\n#endif\n' >> include/linux/mm.h
-            echo "VMA_PAD_FIX=applied"
+            cat >> fs/susfs.c <<'CEOF'
+
+#ifdef CONFIG_KSU_SUSFS
+extern int ksu_install_su_fd(void);
+int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,
+                                      void *envp_user, int *__never_use_flags, int *retval)
+{
+    if (*retval >= 0)
+        (void)ksu_install_su_fd();
+    return 0;
+}
+#endif
+CEOF
+            echo "SUCOMPAT_FIX=applied"
           fi
-          grep -n "VMA_PAD_START" include/linux/mm.h | head -3
-          echo "=== PHASE5 config(放进 out/ + 关掉 TRIM) ==="
+          grep -c "ksu_handle_post_execveat_sucompat" fs/susfs.c
+          echo "=== PHASE5 config ==="
           rm -f .config
           mkdir -p out && cp $W/device.config out/.config
           sed -i '/^CONFIG_TRIM_UNUSED_KSYMS=/d; /^CONFIG_UNUSED_KSYMS_WHITELIST=/d' out/.config
-          echo "--- TRIM 关闭后 ---"
-          grep -cE "^CONFIG_TRIM_UNUSED_KSYMS" out/.config
           make ARCH=arm64 LLVM=1 O=out olddefconfig
-          E=$?
-          echo "OLD1_EXIT=$E"
-          if [ $E -ne 0 ]; then
-            echo "--- retry after mrproper ---"
-            make ARCH=arm64 mrproper
-            mkdir -p out && cp $W/device.config out/.config
-            sed -i '/^CONFIG_TRIM_UNUSED_KSYMS=/d; /^CONFIG_UNUSED_KSYMS_WHITELIST=/d' out/.config
-            make ARCH=arm64 LLVM=1 O=out olddefconfig
-            echo "OLD1B_EXIT=$?"
-          fi
+          echo "OLD1_EXIT=$?"
           printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_UNUSED_KSYMS_WHITELIST=""' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> out/.config
           make ARCH=arm64 LLVM=1 O=out olddefconfig
           echo "OLD2_EXIT=$?"
-          echo "--- 关键开关核对 ---"
-          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_TRIM_UNUSED_KSYMS|^CONFIG_LOCALVERSION|^CONFIG_MODULE_SIG=" out/.config
+          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_DEBUG_INFO_BTF|^CONFIG_LOCALVERSION" out/.config
           echo "KSU_SUSFS_LINES=$(grep -c 'CONFIG_KSU_SUSFS' out/.config)"
-          echo "CONFIG_LINES_TOTAL=$(wc -l < out/.config)"
-          echo "=== PHASE6 build ==="
-          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image
-          echo "BUILD_EXIT=$?"
+          echo "=== PHASE6 build (带 BTF) ==="
+          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -60
+          E1=${PIPESTATUS[0]}
+          echo "BUILD_EXIT=$E1"
+          if [ "$E1" -ne 0 ] && [ ! -f out/arch/arm64/boot/Image ]; then
+            echo "=== PHASE6B 重试(关掉 BTF) ==="
+            printf '%s\n' 'CONFIG_DEBUG_INFO_BTF=n' 'CONFIG_DEBUG_INFO_BTF_MODULES=n' >> out/.config
+            make ARCH=arm64 LLVM=1 O=out olddefconfig
+            grep -E "^CONFIG_DEBUG_INFO_BTF" out/.config
+            make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -60
+            echo "BUILD2_EXIT=${PIPESTATUS[0]}"
+          fi
           ls -la out/arch/arm64/boot/Image 2>&1
           echo "SUSFS_SYMBOLS=$(strings out/arch/arm64/boot/Image 2>/dev/null | grep -ci susfs)"
           SCRIPT
