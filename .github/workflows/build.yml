@@ -16,69 +16,93 @@ jobs:
       - name: deps
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm cpio rsync
+          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm cpio rsync patch
 
-      - name: prepare-and-config
+      - name: cache-source
+        uses: actions/cache@v4
+        with:
+          path: src/lenovo.tar.gz
+          key: lenovo-src-16102082
+
+      - name: s1-download-source
         run: |
-          {
-          set -x
-          cd $GITHUB_WORKSPACE
           mkdir -p src && cd src
-          curl -L --retry 3 -A "Mozilla/5.0" -o lenovo.tar.gz "https://download.lenovo.com/consumer/mobiles/legion_tab_y700(tb321fu)_opensource_16.1.02.082.tar.gz"
+          if [ ! -s lenovo.tar.gz ]; then
+            curl -L --retry 8 --retry-delay 10 --retry-all-errors -A "Mozilla/5.0" -o lenovo.tar.gz "https://download.lenovo.com/consumer/mobiles/legion_tab_y700(tb321fu)_opensource_16.1.02.082.tar.gz"
+          fi
+          SZ=$(stat -c%s lenovo.tar.gz 2>/dev/null || echo 0)
+          echo "SIZE=$SZ"
+          test "$SZ" -gt 900000000
+
+      - name: s2-extract-source
+        run: |
+          cd $GITHUB_WORKSPACE/src
+          rm -rf kernel_tree k
           tar -xzf lenovo.tar.gz ./kernel-6.1.68.tar.gz
           mkdir -p k && tar -xzf kernel-6.1.68.tar.gz -C k ./kernel
           mv k/kernel kernel_tree
-          cd kernel_tree
-          cp ../../device.config .config
+          ls kernel_tree | head -5
+          head -4 kernel_tree/Makefile
+          cp $GITHUB_WORKSPACE/device.config kernel_tree/.config
+          echo "CONFIG_LINES=$(wc -l < kernel_tree/.config)"
+
+      - name: s3-add-sukisu
+        run: |
+          cd $GITHUB_WORKSPACE/src/kernel_tree
           curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
+          test -d KernelSU && echo "SUKISU_OK"
+
+      - name: s4-apply-susfs
+        run: |
           cd $GITHUB_WORKSPACE/src
+          rm -rf susfs4ksu
           git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1 susfs4ksu
           cd kernel_tree
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./ || true
-          cp ../susfs4ksu/kernel_patches/fs/* ./fs/ || true
-          cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/ || true
+          ls ../susfs4ksu/kernel_patches | head -20
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./
+          cp -r ../susfs4ksu/kernel_patches/fs/. ./fs/
+          cp -r ../susfs4ksu/kernel_patches/include/linux/. ./include/linux/
           patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch
           echo "PATCH_EXIT=$?"
+          echo "SUSFS_OK"
+
+      - name: s5-make-config
+        run: |
+          cd $GITHUB_WORKSPACE/src/kernel_tree
           printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> .config
-          echo "config lines before make: $(wc -l < .config)"
           mkdir -p out && cp .config out/.config
-          echo "=== A. make O=out olddefconfig ==="
+          echo "===== make olddefconfig ====="
           make ARCH=arm64 LLVM=1 O=out olddefconfig
           echo "OLDDEFCONFIG_EXIT=$?"
-          echo "=== B. out 目录内容 ==="
-          ls -la out/ | head -20
-          echo "=== C. KSU 开关核对 ==="
-          grep -E "CONFIG_KSU|CONFIG_LOCALVERSION" out/.config | head -20
-          grep -c "CONFIG_KSU=y" out/.config
-          echo "=== D. 如果没有 out/.config, 试试 tree 内直接 olddefconfig ==="
-          if [ ! -f out/.config ]; then make ARCH=arm64 LLVM=1 olddefconfig; echo "FALLBACK_EXIT=$?"; grep -E "CONFIG_KSU=y|CONFIG_LOCALVERSION" .config | head; fi
-          } > $GITHUB_WORKSPACE/diag1.txt 2>&1
-          tail -70 $GITHUB_WORKSPACE/diag1.txt
+          echo "===== out 内容 ====="
+          ls -la out/ | head -15
+          echo "===== KSU 开关 ====="
+          grep -E "CONFIG_KSU=|CONFIG_KSU_SUSFS=|CONFIG_LOCALVERSION" out/.config
+          test -f out/.config
 
-      - name: build
+      - name: s6-build-image
         run: |
-          {
-          set -x
           cd $GITHUB_WORKSPACE/src/kernel_tree
-          if [ ! -f out/.config ]; then mkdir -p out && cp .config out/.config; fi
-          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image
-          echo "BUILD_EXIT=$?"
-          } > $GITHUB_WORKSPACE/diag2-full.txt 2>&1
-          tail -250 $GITHUB_WORKSPACE/diag2-full.txt > $GITHUB_WORKSPACE/diag2.txt
-          cat $GITHUB_WORKSPACE/diag2.txt
-          ls -la out/arch/arm64/boot/Image || true
+          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -120
+          ls -la out/arch/arm64/boot/Image
+          strings out/arch/arm64/boot/Image | grep -m3 -E "6\.1\.[0-9]+-android14"
+          echo "SUSFS_SYMBOLS=$(strings out/arch/arm64/boot/Image | grep -ci susfs)"
 
-      - name: publish-diag
+      - name: s7-publish-diag
         if: always()
+        continue-on-error: true
         run: |
           cd $GITHUB_WORKSPACE
+          echo "run_id=${{ github.run_id }} steps done" > diag.txt
+          ls -la src/ >> diag.txt 2>&1 || true
+          ls -la src/kernel_tree/out/ >> diag.txt 2>&1 || true
           git config user.name diag
           git config user.email diag@example.com
-          git add -f diag1.txt diag2.txt
-          git commit -m "diag" || echo "nothing to commit"
-          git push || echo "push failed"
+          git add -f diag.txt || true
+          git commit -m "diag" || true
+          git push || true
 
-      - name: upload
+      - name: s8-upload-image
         if: success()
         uses: actions/upload-artifact@v4
         with:
