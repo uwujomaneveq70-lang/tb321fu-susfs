@@ -1,4 +1,4 @@
-name: Build-SUSFS-Kernel-TB321FU-v13
+name: Build-SUSFS-Kernel-TB321FU-v14
 
 on:
   workflow_dispatch:
@@ -25,22 +25,22 @@ jobs:
           set +e
           W=$GITHUB_WORKSPACE
           cd $W
-          echo "=== PHASE0 解官方工具链(从联想源码包内) ==="
+          echo "=== PHASE0 解官方工具链(从内层包) ==="
           mkdir -p src && cd src
           if [ ! -s lenovo.tar.gz ]; then
             curl -L --retry 8 --retry-delay 10 --retry-all-errors -A "Mozilla/5.0" -o lenovo.tar.gz "https://download.lenovo.com/consumer/mobiles/legion_tab_y700(tb321fu)_opensource_16.1.02.082.tar.gz"
           fi
           echo "SIZE=$(stat -c%s lenovo.tar.gz)"
-          tar -xzf lenovo.tar.gz ./prebuilts/clang/host/linux-x86/clang-r487747c ./prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 ./prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ./prebuilts/build-tools/path/linux-x86 2>&1 | tail -3
+          tar -xzf lenovo.tar.gz ./kernel-6.1.68.tar.gz
+          tar -xzf kernel-6.1.68.tar.gz ./prebuilts/clang/host/linux-x86/clang-r487747c ./prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
           TC=$W/src/prebuilts/clang/host/linux-x86/clang-r487747c
           GCCBIN=$W/src/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin
-          export PATH=$W/src/prebuilts/build-tools/path/linux-x86:$GCCBIN:$W/src/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin:$PATH
+          export PATH=$GCCBIN:$PATH
           export LD_LIBRARY_PATH=$TC/lib64:$LD_LIBRARY_PATH
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=$GCCBIN/aarch64-linux-androidkernel-
           echo "CLANG=$($TC/bin/clang --version 2>&1 | head -1)"
-          echo "CLANGPATH=$TC/bin/clang"
-          echo "GCC=$($GCCBIN/aarch64-linux-androidkernel-gcc --version 2>&1 | head -1)"
+          echo "BINUTILS=$(ls $GCCBIN 2>/dev/null | head -4 | tr '\n' ' ')"
           V=$($TC/bin/clang --version 2>&1 | head -1)
           case "$V" in
             *17.0.2*) echo "TOOLCHAIN_OK=1" ;;
@@ -48,7 +48,6 @@ jobs:
           esac
           echo "=== PHASE1 extract kernel ==="
           rm -rf kernel_tree k
-          tar -xzf lenovo.tar.gz ./kernel-6.1.68.tar.gz
           mkdir -p k && tar -xzf kernel-6.1.68.tar.gz -C k ./kernel
           mv k/kernel kernel_tree
           echo "TREE=$(ls kernel_tree/Makefile)"
