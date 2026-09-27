@@ -1,0 +1,78 @@
+name: Build-SUSFS-Kernel-TB321FU
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 1-install-deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm
+          clang --version | head -2
+
+      - name: 2-download-lenovo-source
+        run: |
+          mkdir -p src && cd src
+          curl -L --retry 3 -A "Mozilla/5.0" -o lenovo.tar.gz "https://download.lenovo.com/consumer/mobiles/legion_tab_y700(tb321fu)_opensource_16.1.02.082.tar.gz"
+          ls -la lenovo.tar.gz
+
+      - name: 3-extract-kernel
+        run: |
+          cd src
+          tar -xzf lenovo.tar.gz ./kernel-6.1.68.tar.gz
+          mkdir -p k && tar -xzf kernel-6.1.68.tar.gz -C k ./kernel
+          mv k/kernel kernel_tree
+          head -5 kernel_tree/Makefile
+
+      - name: 4-put-device-config
+        run: |
+          cd src/kernel_tree
+          cp ../../device.config .config
+          echo "config lines: $(wc -l < .config)"
+
+      - name: 5-add-sukisu
+        run: |
+          cd src/kernel_tree
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
+          ls -d KernelSU
+
+      - name: 6-apply-susfs
+        run: |
+          cd src
+          git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1 susfs4ksu
+          cd kernel_tree
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./
+          cp ../susfs4ksu/kernel_patches/fs/* ./fs/ || true
+          cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/ || true
+          patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch || echo "patch offset, continue"
+
+      - name: 7-enable-switches
+        run: |
+          cd src/kernel_tree
+          printf '%s\n' "CONFIG_KSU=y" "CONFIG_KSU_SUSFS=y" "CONFIG_KSU_SUSFS_SUS_PATH=y" "CONFIG_KSU_SUSFS_SUS_MOUNT=y" "CONFIG_KSU_SUSFS_SUS_KSTAT=y" "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" "CONFIG_KSU_SUSFS_SUS_SU=n" "CONFIG_KSU_SUSFS_ENABLE_LOG=n" "CONFIG_LOCALVERSION=\"-android14-11\"" "CONFIG_WERROR=n" >> .config
+          make ARCH=arm64 LLVM=1 O=out olddefconfig 2>&1 | tail -5
+          grep -E "CONFIG_KSU=|CONFIG_KSU_SUSFS=|CONFIG_LOCALVERSION" out/.config
+
+      - name: 8-build-image
+        run: |
+          cd src/kernel_tree
+          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -40
+          ls -la out/arch/arm64/boot/Image
+
+      - name: 9-verify
+        run: |
+          cd src/kernel_tree
+          strings out/arch/arm64/boot/Image | grep -m3 -E "6\.1\.[0-9]+-android14" || true
+          echo "susfs symbols: $(strings out/arch/arm64/boot/Image | grep -ci susfs)"
+
+      - name: 10-upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-Image-susfs
+          path: src/kernel_tree/out/arch/arm64/boot/Image
