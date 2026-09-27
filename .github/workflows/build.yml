@@ -35,37 +35,41 @@ jobs:
           tar -xzf lenovo.tar.gz ./kernel-6.1.68.tar.gz
           mkdir -p k && tar -xzf kernel-6.1.68.tar.gz -C k ./kernel
           mv k/kernel kernel_tree
-          cp $W/device.config kernel_tree/.config
-          echo "CONFIG_LINES=$(wc -l < kernel_tree/.config)"
+          echo "TREE=$(ls kernel_tree/Makefile)"
           echo "=== PHASE3 KernelSU ==="
           cd kernel_tree
           curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
           echo "KSU_DIR=$(ls -d KernelSU 2>/dev/null)"
-          echo "=== PHASE4 SUSFS ==="
+          echo "=== PHASE4 SUSFS(只打 50_ 主补丁) ==="
           cd $W/src
           rm -rf susfs4ksu
           git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1 susfs4ksu
-          echo "--- patch files:"; ls susfs4ksu/kernel_patches | head -30
-          echo "--- KernelSU patch dir:"; ls susfs4ksu/kernel_patches/KernelSU 2>/dev/null | head
           cd kernel_tree
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./
           cp -r ../susfs4ksu/kernel_patches/fs/. ./fs/
           cp -r ../susfs4ksu/kernel_patches/include/linux/. ./include/linux/
           patch -p1 --fuzz=3 < 50_add_susfs_in_gki-android14-6.1.patch
           echo "PATCH50_EXIT=$?"
-          echo "--- rejects:"; find . -name '*.rej' | head -20
-          for f in $(find . -name '*.rej' | head -3); do echo "### $f"; head -50 "$f"; done
-          if [ -d KernelSU ] && [ -f ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ]; then
-            cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
-            cd KernelSU && patch -p1 --fuzz=3 < 10_enable_susfs_for_ksu.patch; echo "PATCH10_EXIT=$?"; cd ..
-          fi
-          echo "=== PHASE5 config ==="
-          printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> .config
-          mkdir -p out && cp .config out/.config
+          echo "=== PHASE5 config(放进 out/) ==="
+          rm -f .config
+          mkdir -p out && cp $W/device.config out/.config
           make ARCH=arm64 LLVM=1 O=out olddefconfig
-          echo "OLDDEFCONFIG_EXIT=$?"
-          ls -la out/ | head -15
-          grep -E "CONFIG_KSU=|CONFIG_KSU_SUSFS=|CONFIG_LOCALVERSION" out/.config
+          E=$?
+          echo "OLD1_EXIT=$E"
+          if [ $E -ne 0 ]; then
+            echo "--- retry after mrproper ---"
+            make ARCH=arm64 mrproper
+            mkdir -p out && cp $W/device.config out/.config
+            make ARCH=arm64 LLVM=1 O=out olddefconfig
+            echo "OLD1B_EXIT=$?"
+          fi
+          printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> out/.config
+          make ARCH=arm64 LLVM=1 O=out olddefconfig
+          echo "OLD2_EXIT=$?"
+          echo "--- KSU/SUSFS 是否生效 ---"
+          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_LOCALVERSION" out/.config
+          echo "KSU_SUSFS_LINES=$(grep -c 'CONFIG_KSU_SUSFS' out/.config)"
+          echo "CONFIG_LINES_TOTAL=$(wc -l < out/.config)"
           echo "=== PHASE6 build ==="
           make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image
           echo "BUILD_EXIT=$?"
@@ -73,7 +77,7 @@ jobs:
           echo "SUSFS_SYMBOLS=$(strings out/arch/arm64/boot/Image 2>/dev/null | grep -ci susfs)"
           SCRIPT
           bash /tmp/all.sh > $GITHUB_WORKSPACE/diag.txt 2>&1
-          tail -120 $GITHUB_WORKSPACE/diag.txt || true
+          tail -80 $GITHUB_WORKSPACE/diag.txt || true
 
       - name: publish-diag
         if: always()
