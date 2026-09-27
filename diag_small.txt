@@ -1,0 +1,655 @@
+=== PHASE1 download ===
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  5  933M    5 53.7M    0     0  45.7M      0  0:00:20  0:00:01  0:00:19 45.6M 21  933M   21  204M    0     0  93.6M      0  0:00:09  0:00:02  0:00:07 93.6M 34  933M   34  326M    0     0   102M      0  0:00:09  0:00:03  0:00:06  102M 50  933M   50  473M    0     0   113M      0  0:00:08  0:00:04  0:00:04  113M 67  933M   67  627M    0     0   121M      0  0:00:07  0:00:05  0:00:02  125M 83  933M   83  780M    0     0   126M      0  0:00:07  0:00:06  0:00:01  145M 99  933M   99  932M    0     0   129M      0  0:00:07  0:00:07 --:--:--  145M100  933M  100  933M    0     0   129M      0  0:00:07  0:00:07 --:--:--  151M
+SIZE=978645996
+=== PHASE2 extract ===
+CONFIG_LINES=7545
+=== PHASE3 KernelSU ===
+[+] Setting up KernelSU...
+Cloning into 'KernelSU'...
+[+] Repository cloned.
+No local changes to save
+[-] Stashed current changes.
+Already up to date.
+[+] Repository updated.
+Switched to a new branch 'builtin'
+branch 'builtin' set up to track 'origin/builtin'.
+[-] Checked out builtin.
+[+] Symlink created.
+[+] Modified Makefile.
+[+] Modified Kconfig.
+[+] Done.
+KSU_DIR=KernelSU
+=== PHASE4 SUSFS ===
+Cloning into 'susfs4ksu'...
+--- patch files:
+50_add_susfs_in_gki-android14-6.1.patch
+KernelSU
+fs
+include
+--- KernelSU patch dir:
+10_enable_susfs_for_ksu.patch
+patching file drivers/input/input.c
+patching file fs/Makefile
+patching file fs/exec.c
+Hunk #1 succeeded at 64 with fuzz 2.
+Hunk #2 succeeded at 1872 (offset -34 lines).
+Hunk #3 succeeded at 1891 (offset -34 lines).
+Hunk #4 succeeded at 1979 (offset -34 lines).
+patching file fs/namei.c
+Hunk #2 succeeded at 1581 (offset -10 lines).
+Hunk #3 succeeded at 1605 (offset -11 lines).
+Hunk #4 succeeded at 1617 (offset -11 lines).
+Hunk #5 succeeded at 1628 with fuzz 1 (offset -11 lines).
+Hunk #6 succeeded at 1646 (offset -12 lines).
+Hunk #7 succeeded at 1657 (offset -12 lines).
+Hunk #8 succeeded at 1690 (offset -12 lines).
+Hunk #9 succeeded at 1721 (offset -12 lines).
+Hunk #10 succeeded at 1742 (offset -12 lines).
+Hunk #11 succeeded at 1761 (offset -12 lines).
+Hunk #12 succeeded at 2075 (offset -12 lines).
+Hunk #13 succeeded at 2347 (offset -12 lines).
+Hunk #14 succeeded at 2545 (offset -12 lines).
+Hunk #15 succeeded at 3429 (offset -76 lines).
+Hunk #16 succeeded at 3561 (offset -76 lines).
+Hunk #17 succeeded at 3788 (offset -76 lines).
+Hunk #18 succeeded at 3829 (offset -76 lines).
+Hunk #19 succeeded at 3900 (offset -76 lines).
+Hunk #20 succeeded at 5220 (offset -99 lines).
+Hunk #21 succeeded at 5234 (offset -99 lines).
+Hunk #22 succeeded at 5261 (offset -99 lines).
+patching file fs/namespace.c
+Hunk #2 succeeded at 145 (offset -9 lines).
+Hunk #3 succeeded at 157 (offset -9 lines).
+Hunk #4 succeeded at 225 (offset -9 lines).
+Hunk #5 succeeded at 815 (offset -5 lines).
+Hunk #6 succeeded at 1173 (offset -5 lines).
+Hunk #7 succeeded at 1273 (offset -5 lines).
+Hunk #8 succeeded at 1326 (offset -5 lines).
+Hunk #9 succeeded at 3689 (offset -38 lines).
+Hunk #10 succeeded at 4934 (offset -43 lines).
+patching file fs/notify/fdinfo.c
+Hunk #3 succeeded at 92 (offset 2 lines).
+Hunk #4 succeeded at 107 (offset 2 lines).
+patching file fs/open.c
+patching file fs/proc/base.c
+Hunk #1 succeeded at 100 with fuzz 3.
+Hunk #2 succeeded at 1778 (offset -61 lines).
+Hunk #3 succeeded at 1791 (offset -61 lines).
+Hunk #4 succeeded at 2425 (offset -61 lines).
+patching file fs/proc/bootconfig.c
+patching file fs/proc/fd.c
+patching file fs/proc/task_mmu.c
+Hunk #1 succeeded at 20 (offset -1 lines).
+Hunk #2 succeeded at 275 (offset -1 lines).
+Hunk #3 succeeded at 297 (offset -1 lines).
+Hunk #4 succeeded at 899 with fuzz 1 (offset -22 lines).
+Hunk #5 succeeded at 962 (offset -28 lines).
+Hunk #6 succeeded at 1032 (offset -28 lines).
+Hunk #7 succeeded at 1770 (offset -30 lines).
+Hunk #8 succeeded at 1782 (offset -30 lines).
+patching file fs/proc_namespace.c
+patching file fs/read_write.c
+patching file fs/readdir.c
+patching file fs/stat.c
+patching file fs/statfs.c
+patching file fs/super.c
+Hunk #2 succeeded at 1073 (offset -11 lines).
+Hunk #3 succeeded at 1093 (offset -11 lines).
+patching file kernel/kallsyms.c
+patching file kernel/reboot.c
+Hunk #1 succeeded at 691 (offset -2 lines).
+Hunk #2 succeeded at 709 (offset -2 lines).
+patching file kernel/sys.c
+patching file mm/memory.c
+Hunk #1 succeeded at 78 with fuzz 1 (offset -1 lines).
+Hunk #2 succeeded at 5857 (offset -80 lines).
+patching file security/selinux/avc.c
+patching file security/selinux/hooks.c
+Hunk #2 succeeded at 6554 (offset -40 lines).
+Hunk #3 succeeded at 7225 (offset -41 lines).
+patching file security/selinux/selinuxfs.c
+Hunk #4 succeeded at 747 (offset -1 lines).
+Hunk #5 succeeded at 941 (offset -1 lines).
+Hunk #6 succeeded at 1048 (offset -1 lines).
+PATCH50_EXIT=0
+--- rejects:
+can't find file to patch at input line 5
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/Kbuild b/kernel/Kbuild
+|index eecfcece..f15b42e2 100644
+|--- a/kernel/Kbuild
+|+++ b/kernel/Kbuild
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+2 out of 2 hunks ignored
+patching file kernel/Kconfig
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+2 out of 2 hunks ignored -- saving rejects to file kernel/Kconfig.rej
+patching file kernel/Makefile
+Hunk #1 succeeded at 154 with fuzz 2 (offset 121 lines).
+can't find file to patch at input line 183
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/core/init.c b/kernel/core/init.c
+|index d1b37901..0af7fa35 100644
+|--- a/kernel/core/init.c
+|+++ b/kernel/core/init.c
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+8 out of 8 hunks ignored
+patching file kernel/feature/adb_root.c
+Hunk #1 FAILED at 9.
+Hunk #2 FAILED at 19.
+Hunk #3 FAILED at 64.
+Hunk #4 FAILED at 81.
+Hunk #5 succeeded at 229 with fuzz 2 (offset 127 lines).
+Hunk #6 FAILED at 157.
+Hunk #7 FAILED at 167.
+6 out of 7 hunks FAILED -- saving rejects to file kernel/feature/adb_root.c.rej
+patching file kernel/feature/adb_root.h
+Hunk #1 FAILED at 2.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/feature/adb_root.h.rej
+patching file kernel/feature/kernel_umount.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+1 out of 1 hunk ignored -- saving rejects to file kernel/feature/kernel_umount.c.rej
+patching file kernel/feature/selinux_hide.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+11 out of 11 hunks ignored -- saving rejects to file kernel/feature/selinux_hide.c.rej
+patching file kernel/feature/sucompat.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+5 out of 5 hunks ignored -- saving rejects to file kernel/feature/sucompat.c.rej
+patching file kernel/feature/sucompat.h
+Hunk #1 FAILED at 3.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/feature/sucompat.h.rej
+can't find file to patch at input line 1596
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/hook/setuid_hook.c b/kernel/hook/setuid_hook.c
+|index d3f3ac49..1f1e91be 100644
+|--- a/kernel/hook/setuid_hook.c
+|+++ b/kernel/hook/setuid_hook.c
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+2 out of 2 hunks ignored
+can't find file to patch at input line 1769
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/hook/setuid_hook.h b/kernel/hook/setuid_hook.h
+|index 3a3dfea8..b8486238 100644
+|--- a/kernel/hook/setuid_hook.h
+|+++ b/kernel/hook/setuid_hook.h
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+1 out of 1 hunk ignored
+patching file kernel/include/ksu.h
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+1 out of 1 hunk ignored -- saving rejects to file kernel/include/ksu.h.rej
+patching file kernel/policy/allowlist.c
+Hunk #1 succeeded at 254 with fuzz 3 (offset -40 lines).
+patching file kernel/policy/app_profile.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+9 out of 9 hunks ignored -- saving rejects to file kernel/policy/app_profile.c.rej
+patching file kernel/policy/app_profile.h
+Hunk #1 FAILED at 2.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/policy/app_profile.h.rej
+patching file kernel/policy/feature.h
+Hunk #1 FAILED at 2.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/policy/feature.h.rej
+can't find file to patch at input line 1991
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/runtime/boot_event.c b/kernel/runtime/boot_event.c
+|index 7fcb1d9d..99dcb7dd 100644
+|--- a/kernel/runtime/boot_event.c
+|+++ b/kernel/runtime/boot_event.c
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+2 out of 2 hunks ignored
+patching file kernel/runtime/ksud.h
+Hunk #1 FAILED at 8.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/runtime/ksud.h.rej
+can't find file to patch at input line 2043
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/runtime/ksud_integration.c b/kernel/runtime/ksud_integration.c
+|index 6ee9b39d..6f81803c 100644
+|--- a/kernel/runtime/ksud_integration.c
+|+++ b/kernel/runtime/ksud_integration.c
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+11 out of 11 hunks ignored
+patching file kernel/selinux/rules.c
+Hunk #1 succeeded at 161 with fuzz 3.
+patching file kernel/selinux/selinux.c
+Hunk #1 succeeded at 220 with fuzz 3.
+patching file kernel/selinux/selinux.h
+Hunk #1 succeeded at 47 with fuzz 2 (offset 8 lines).
+patching file kernel/sulog/event.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+9 out of 9 hunks ignored -- saving rejects to file kernel/sulog/event.c.rej
+patching file kernel/sulog/event.h
+Hunk #1 succeeded at 5 with fuzz 3.
+Hunk #2 FAILED at 13.
+1 out of 2 hunks FAILED -- saving rejects to file kernel/sulog/event.h.rej
+patching file kernel/supercall/dispatch.c
+Hunk #1 succeeded at 4 with fuzz 3.
+Hunk #2 FAILED at 18.
+Hunk #3 FAILED at 45.
+Hunk #4 FAILED at 76.
+Hunk #5 FAILED at 113.
+Hunk #6 FAILED at 126.
+Hunk #7 FAILED at 376.
+Hunk #8 FAILED at 453.
+Hunk #9 succeeded at 474 with fuzz 2 (offset -31 lines).
+7 out of 9 hunks FAILED -- saving rejects to file kernel/supercall/dispatch.c.rej
+patching file kernel/supercall/supercall.c
+Hunk #1 FAILED at 63.
+Hunk #2 FAILED at 113.
+2 out of 2 hunks FAILED -- saving rejects to file kernel/supercall/supercall.c.rej
+patching file kernel/supercall/supercall.h
+Hunk #1 succeeded at 25 (offset -1 lines).
+PATCH10_EXIT=1
+=== PHASE5 config ===
+make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+***
+*** The source tree is not clean, please run 'make ARCH=arm64 mrproper'
+*** in /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree
+***
+make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:676: outputmakefile] Error 1
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+make: *** [Makefile:256: __sub-make] Error 2
+OLDDEFCONFIG_EXIT=2
+total 228
+drwxr-xr-x  2 runner runner   4096 Sep 27 08:08 .
+drwxr-xr-x 31 runner runner  12288 Sep 27 08:08 ..
+-rw-r--r--  1 runner runner 213252 Sep 27 08:08 .config
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_KSU=y
+CONFIG_KSU_SUSFS=y
+CONFIG_LOCALVERSION="-android14-11"
+=== PHASE6 build ===
+make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1575: warning: overriding recipe for target 'dtbs'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1265: warning: ignoring old recipe for target 'dtbs'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1590: warning: overriding recipe for target 'dtbs_install'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1275: warning: ignoring old recipe for target 'dtbs_install'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1600: warning: overriding recipe for target 'scripts_dtc'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1285: warning: ignoring old recipe for target 'scripts_dtc'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1608: warning: overriding recipe for target 'dt_binding_check'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1293: warning: ignoring old recipe for target 'dt_binding_check'
+  SYNC    include/config/auto.conf.cmd
+***
+*** The source tree is not clean, please run 'make ARCH=arm64 mrproper'
+*** in /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree
+***
+make[2]: *** [../Makefile:676: outputmakefile] Error 1
+make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:825: include/config/auto.conf.cmd] Error 2
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+make: *** [Makefile:256: __sub-make] Error 2
+BUILD_EXIT=2
+ls: cannot access 'out/arch/arm64/boot/Image': No such file or directory
+SUSFS_SYMBOLS=0
+..... [中间省略] .....
+=== PHASE1 download ===
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  5  933M    5 53.7M    0     0  45.7M      0  0:00:20  0:00:01  0:00:19 45.6M 21  933M   21  204M    0     0  93.6M      0  0:00:09  0:00:02  0:00:07 93.6M 34  933M   34  326M    0     0   102M      0  0:00:09  0:00:03  0:00:06  102M 50  933M   50  473M    0     0   113M      0  0:00:08  0:00:04  0:00:04  113M 67  933M   67  627M    0     0   121M      0  0:00:07  0:00:05  0:00:02  125M 83  933M   83  780M    0     0   126M      0  0:00:07  0:00:06  0:00:01  145M 99  933M   99  932M    0     0   129M      0  0:00:07  0:00:07 --:--:--  145M100  933M  100  933M    0     0   129M      0  0:00:07  0:00:07 --:--:--  151M
+SIZE=978645996
+=== PHASE2 extract ===
+CONFIG_LINES=7545
+=== PHASE3 KernelSU ===
+[+] Setting up KernelSU...
+Cloning into 'KernelSU'...
+[+] Repository cloned.
+No local changes to save
+[-] Stashed current changes.
+Already up to date.
+[+] Repository updated.
+Switched to a new branch 'builtin'
+branch 'builtin' set up to track 'origin/builtin'.
+[-] Checked out builtin.
+[+] Symlink created.
+[+] Modified Makefile.
+[+] Modified Kconfig.
+[+] Done.
+KSU_DIR=KernelSU
+=== PHASE4 SUSFS ===
+Cloning into 'susfs4ksu'...
+--- patch files:
+50_add_susfs_in_gki-android14-6.1.patch
+KernelSU
+fs
+include
+--- KernelSU patch dir:
+10_enable_susfs_for_ksu.patch
+patching file drivers/input/input.c
+patching file fs/Makefile
+patching file fs/exec.c
+Hunk #1 succeeded at 64 with fuzz 2.
+Hunk #2 succeeded at 1872 (offset -34 lines).
+Hunk #3 succeeded at 1891 (offset -34 lines).
+Hunk #4 succeeded at 1979 (offset -34 lines).
+patching file fs/namei.c
+Hunk #2 succeeded at 1581 (offset -10 lines).
+Hunk #3 succeeded at 1605 (offset -11 lines).
+Hunk #4 succeeded at 1617 (offset -11 lines).
+Hunk #5 succeeded at 1628 with fuzz 1 (offset -11 lines).
+Hunk #6 succeeded at 1646 (offset -12 lines).
+Hunk #7 succeeded at 1657 (offset -12 lines).
+Hunk #8 succeeded at 1690 (offset -12 lines).
+Hunk #9 succeeded at 1721 (offset -12 lines).
+Hunk #10 succeeded at 1742 (offset -12 lines).
+Hunk #11 succeeded at 1761 (offset -12 lines).
+Hunk #12 succeeded at 2075 (offset -12 lines).
+Hunk #13 succeeded at 2347 (offset -12 lines).
+Hunk #14 succeeded at 2545 (offset -12 lines).
+Hunk #15 succeeded at 3429 (offset -76 lines).
+Hunk #16 succeeded at 3561 (offset -76 lines).
+Hunk #17 succeeded at 3788 (offset -76 lines).
+Hunk #18 succeeded at 3829 (offset -76 lines).
+Hunk #19 succeeded at 3900 (offset -76 lines).
+Hunk #20 succeeded at 5220 (offset -99 lines).
+Hunk #21 succeeded at 5234 (offset -99 lines).
+Hunk #22 succeeded at 5261 (offset -99 lines).
+patching file fs/namespace.c
+Hunk #2 succeeded at 145 (offset -9 lines).
+Hunk #3 succeeded at 157 (offset -9 lines).
+Hunk #4 succeeded at 225 (offset -9 lines).
+Hunk #5 succeeded at 815 (offset -5 lines).
+Hunk #6 succeeded at 1173 (offset -5 lines).
+Hunk #7 succeeded at 1273 (offset -5 lines).
+Hunk #8 succeeded at 1326 (offset -5 lines).
+Hunk #9 succeeded at 3689 (offset -38 lines).
+Hunk #10 succeeded at 4934 (offset -43 lines).
+patching file fs/notify/fdinfo.c
+Hunk #3 succeeded at 92 (offset 2 lines).
+Hunk #4 succeeded at 107 (offset 2 lines).
+patching file fs/open.c
+patching file fs/proc/base.c
+Hunk #1 succeeded at 100 with fuzz 3.
+Hunk #2 succeeded at 1778 (offset -61 lines).
+Hunk #3 succeeded at 1791 (offset -61 lines).
+Hunk #4 succeeded at 2425 (offset -61 lines).
+patching file fs/proc/bootconfig.c
+patching file fs/proc/fd.c
+patching file fs/proc/task_mmu.c
+Hunk #1 succeeded at 20 (offset -1 lines).
+Hunk #2 succeeded at 275 (offset -1 lines).
+Hunk #3 succeeded at 297 (offset -1 lines).
+Hunk #4 succeeded at 899 with fuzz 1 (offset -22 lines).
+Hunk #5 succeeded at 962 (offset -28 lines).
+Hunk #6 succeeded at 1032 (offset -28 lines).
+Hunk #7 succeeded at 1770 (offset -30 lines).
+Hunk #8 succeeded at 1782 (offset -30 lines).
+patching file fs/proc_namespace.c
+patching file fs/read_write.c
+patching file fs/readdir.c
+patching file fs/stat.c
+patching file fs/statfs.c
+patching file fs/super.c
+Hunk #2 succeeded at 1073 (offset -11 lines).
+Hunk #3 succeeded at 1093 (offset -11 lines).
+patching file kernel/kallsyms.c
+patching file kernel/reboot.c
+Hunk #1 succeeded at 691 (offset -2 lines).
+Hunk #2 succeeded at 709 (offset -2 lines).
+patching file kernel/sys.c
+patching file mm/memory.c
+Hunk #1 succeeded at 78 with fuzz 1 (offset -1 lines).
+Hunk #2 succeeded at 5857 (offset -80 lines).
+patching file security/selinux/avc.c
+patching file security/selinux/hooks.c
+Hunk #2 succeeded at 6554 (offset -40 lines).
+Hunk #3 succeeded at 7225 (offset -41 lines).
+patching file security/selinux/selinuxfs.c
+Hunk #4 succeeded at 747 (offset -1 lines).
+Hunk #5 succeeded at 941 (offset -1 lines).
+Hunk #6 succeeded at 1048 (offset -1 lines).
+PATCH50_EXIT=0
+--- rejects:
+can't find file to patch at input line 5
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/Kbuild b/kernel/Kbuild
+|index eecfcece..f15b42e2 100644
+|--- a/kernel/Kbuild
+|+++ b/kernel/Kbuild
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+2 out of 2 hunks ignored
+patching file kernel/Kconfig
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+2 out of 2 hunks ignored -- saving rejects to file kernel/Kconfig.rej
+patching file kernel/Makefile
+Hunk #1 succeeded at 154 with fuzz 2 (offset 121 lines).
+can't find file to patch at input line 183
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/core/init.c b/kernel/core/init.c
+|index d1b37901..0af7fa35 100644
+|--- a/kernel/core/init.c
+|+++ b/kernel/core/init.c
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+8 out of 8 hunks ignored
+patching file kernel/feature/adb_root.c
+Hunk #1 FAILED at 9.
+Hunk #2 FAILED at 19.
+Hunk #3 FAILED at 64.
+Hunk #4 FAILED at 81.
+Hunk #5 succeeded at 229 with fuzz 2 (offset 127 lines).
+Hunk #6 FAILED at 157.
+Hunk #7 FAILED at 167.
+6 out of 7 hunks FAILED -- saving rejects to file kernel/feature/adb_root.c.rej
+patching file kernel/feature/adb_root.h
+Hunk #1 FAILED at 2.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/feature/adb_root.h.rej
+patching file kernel/feature/kernel_umount.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+1 out of 1 hunk ignored -- saving rejects to file kernel/feature/kernel_umount.c.rej
+patching file kernel/feature/selinux_hide.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+11 out of 11 hunks ignored -- saving rejects to file kernel/feature/selinux_hide.c.rej
+patching file kernel/feature/sucompat.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+5 out of 5 hunks ignored -- saving rejects to file kernel/feature/sucompat.c.rej
+patching file kernel/feature/sucompat.h
+Hunk #1 FAILED at 3.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/feature/sucompat.h.rej
+can't find file to patch at input line 1596
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/hook/setuid_hook.c b/kernel/hook/setuid_hook.c
+|index d3f3ac49..1f1e91be 100644
+|--- a/kernel/hook/setuid_hook.c
+|+++ b/kernel/hook/setuid_hook.c
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+2 out of 2 hunks ignored
+can't find file to patch at input line 1769
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/hook/setuid_hook.h b/kernel/hook/setuid_hook.h
+|index 3a3dfea8..b8486238 100644
+|--- a/kernel/hook/setuid_hook.h
+|+++ b/kernel/hook/setuid_hook.h
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+1 out of 1 hunk ignored
+patching file kernel/include/ksu.h
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+1 out of 1 hunk ignored -- saving rejects to file kernel/include/ksu.h.rej
+patching file kernel/policy/allowlist.c
+Hunk #1 succeeded at 254 with fuzz 3 (offset -40 lines).
+patching file kernel/policy/app_profile.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+9 out of 9 hunks ignored -- saving rejects to file kernel/policy/app_profile.c.rej
+patching file kernel/policy/app_profile.h
+Hunk #1 FAILED at 2.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/policy/app_profile.h.rej
+patching file kernel/policy/feature.h
+Hunk #1 FAILED at 2.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/policy/feature.h.rej
+can't find file to patch at input line 1991
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/runtime/boot_event.c b/kernel/runtime/boot_event.c
+|index 7fcb1d9d..99dcb7dd 100644
+|--- a/kernel/runtime/boot_event.c
+|+++ b/kernel/runtime/boot_event.c
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+2 out of 2 hunks ignored
+patching file kernel/runtime/ksud.h
+Hunk #1 FAILED at 8.
+1 out of 1 hunk FAILED -- saving rejects to file kernel/runtime/ksud.h.rej
+can't find file to patch at input line 2043
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/kernel/runtime/ksud_integration.c b/kernel/runtime/ksud_integration.c
+|index 6ee9b39d..6f81803c 100644
+|--- a/kernel/runtime/ksud_integration.c
+|+++ b/kernel/runtime/ksud_integration.c
+--------------------------
+File to patch: 
+Skip this patch? [y] 
+Skipping patch.
+11 out of 11 hunks ignored
+patching file kernel/selinux/rules.c
+Hunk #1 succeeded at 161 with fuzz 3.
+patching file kernel/selinux/selinux.c
+Hunk #1 succeeded at 220 with fuzz 3.
+patching file kernel/selinux/selinux.h
+Hunk #1 succeeded at 47 with fuzz 2 (offset 8 lines).
+patching file kernel/sulog/event.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+9 out of 9 hunks ignored -- saving rejects to file kernel/sulog/event.c.rej
+patching file kernel/sulog/event.h
+Hunk #1 succeeded at 5 with fuzz 3.
+Hunk #2 FAILED at 13.
+1 out of 2 hunks FAILED -- saving rejects to file kernel/sulog/event.h.rej
+patching file kernel/supercall/dispatch.c
+Hunk #1 succeeded at 4 with fuzz 3.
+Hunk #2 FAILED at 18.
+Hunk #3 FAILED at 45.
+Hunk #4 FAILED at 76.
+Hunk #5 FAILED at 113.
+Hunk #6 FAILED at 126.
+Hunk #7 FAILED at 376.
+Hunk #8 FAILED at 453.
+Hunk #9 succeeded at 474 with fuzz 2 (offset -31 lines).
+7 out of 9 hunks FAILED -- saving rejects to file kernel/supercall/dispatch.c.rej
+patching file kernel/supercall/supercall.c
+Hunk #1 FAILED at 63.
+Hunk #2 FAILED at 113.
+2 out of 2 hunks FAILED -- saving rejects to file kernel/supercall/supercall.c.rej
+patching file kernel/supercall/supercall.h
+Hunk #1 succeeded at 25 (offset -1 lines).
+PATCH10_EXIT=1
+=== PHASE5 config ===
+make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+***
+*** The source tree is not clean, please run 'make ARCH=arm64 mrproper'
+*** in /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree
+***
+make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:676: outputmakefile] Error 1
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+make: *** [Makefile:256: __sub-make] Error 2
+OLDDEFCONFIG_EXIT=2
+total 228
+drwxr-xr-x  2 runner runner   4096 Sep 27 08:08 .
+drwxr-xr-x 31 runner runner  12288 Sep 27 08:08 ..
+-rw-r--r--  1 runner runner 213252 Sep 27 08:08 .config
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_KSU=y
+CONFIG_KSU_SUSFS=y
+CONFIG_LOCALVERSION="-android14-11"
+=== PHASE6 build ===
+make[1]: Entering directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1575: warning: overriding recipe for target 'dtbs'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1265: warning: ignoring old recipe for target 'dtbs'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1590: warning: overriding recipe for target 'dtbs_install'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1275: warning: ignoring old recipe for target 'dtbs_install'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1600: warning: overriding recipe for target 'scripts_dtc'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1285: warning: ignoring old recipe for target 'scripts_dtc'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1608: warning: overriding recipe for target 'dt_binding_check'
+/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:1293: warning: ignoring old recipe for target 'dt_binding_check'
+  SYNC    include/config/auto.conf.cmd
+***
+*** The source tree is not clean, please run 'make ARCH=arm64 mrproper'
+*** in /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree
+***
+make[2]: *** [../Makefile:676: outputmakefile] Error 1
+make[1]: *** [/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/Makefile:825: include/config/auto.conf.cmd] Error 2
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+make: *** [Makefile:256: __sub-make] Error 2
+BUILD_EXIT=2
+ls: cannot access 'out/arch/arm64/boot/Image': No such file or directory
+SUSFS_SYMBOLS=0
