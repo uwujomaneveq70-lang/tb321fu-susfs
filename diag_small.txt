@@ -1,25 +1,429 @@
-=== PHASE0 解官方工具链(从联想源码包内) ===
+=== PHASE0 解官方工具链(从内层包) ===
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 11  933M   11  111M    0     0   261M      0  0:00:03 --:--:--  0:00:03  261M 59  933M   59  558M    0     0   390M      0  0:00:02  0:00:01  0:00:01  390M100  933M  100  933M    0     0   388M      0  0:00:02  0:00:02 --:--:--  388M
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 19  933M   19  178M    0     0   351M      0  0:00:02 --:--:--  0:00:02  351M 60  933M   60  568M    0     0   376M      0  0:00:02  0:00:01  0:00:01  376M100  933M  100  933M    0     0   408M      0  0:00:02  0:00:02 --:--:--  408M
 SIZE=978645996
-tar: ./prebuilts/gcc/linux-x86/arm/arm-eabi-4.8: Not found in archive
-tar: ./prebuilts/build-tools/path/linux-x86: Not found in archive
-tar: Exiting with failure status due to previous errors
-CLANG=/tmp/all.sh: line 17: /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/prebuilts/clang/host/linux-x86/clang-r487747c/bin/clang: No such file or directory
-CLANGPATH=/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/prebuilts/clang/host/linux-x86/clang-r487747c/bin/clang
-GCC=/tmp/all.sh: line 19: /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-androidkernel-gcc: No such file or directory
-TOOLCHAIN_OK=0  工具链不对,停止
+CLANG=Android (10087095, +pgo, +bolt, +lto, -mlgo, based on r487747c) clang version 17.0.2 (https://android.googlesource.com/toolchain/llvm-project d9f89f4d16663d5012e5c09495f3b30ece3d2362)
+BINUTILS=aarch64-linux-android-addr2line aarch64-linux-android-ar aarch64-linux-android-as aarch64-linux-android-c++filt 
+TOOLCHAIN_OK=1
+=== PHASE1 extract kernel ===
+TREE=kernel_tree/Makefile
+=== PHASE2 KernelSU ===
+[+] Setting up KernelSU...
+Cloning into 'KernelSU'...
+[+] Repository cloned.
+No local changes to save
+[-] Stashed current changes.
+Already up to date.
+[+] Repository updated.
+Switched to a new branch 'builtin'
+branch 'builtin' set up to track 'origin/builtin'.
+[-] Checked out builtin.
+[+] Symlink created.
+[+] Modified Makefile.
+[+] Modified Kconfig.
+[+] Done.
+KSU_DIR=KernelSU
+=== PHASE3 SUSFS ===
+Cloning into 'susfs4ksu'...
+patching file drivers/input/input.c
+patching file fs/Makefile
+patching file fs/exec.c
+Hunk #1 succeeded at 64 with fuzz 2.
+Hunk #2 succeeded at 1872 (offset -34 lines).
+Hunk #3 succeeded at 1891 (offset -34 lines).
+Hunk #4 succeeded at 1979 (offset -34 lines).
+patching file fs/namei.c
+Hunk #2 succeeded at 1581 (offset -10 lines).
+Hunk #3 succeeded at 1605 (offset -11 lines).
+Hunk #4 succeeded at 1617 (offset -11 lines).
+Hunk #5 succeeded at 1628 with fuzz 1 (offset -11 lines).
+Hunk #6 succeeded at 1646 (offset -12 lines).
+Hunk #7 succeeded at 1657 (offset -12 lines).
+Hunk #8 succeeded at 1690 (offset -12 lines).
+Hunk #9 succeeded at 1721 (offset -12 lines).
+Hunk #10 succeeded at 1742 (offset -12 lines).
+Hunk #11 succeeded at 1761 (offset -12 lines).
+Hunk #12 succeeded at 2075 (offset -12 lines).
+Hunk #13 succeeded at 2347 (offset -12 lines).
+Hunk #14 succeeded at 2545 (offset -12 lines).
+Hunk #15 succeeded at 3429 (offset -76 lines).
+Hunk #16 succeeded at 3561 (offset -76 lines).
+Hunk #17 succeeded at 3788 (offset -76 lines).
+Hunk #18 succeeded at 3829 (offset -76 lines).
+Hunk #19 succeeded at 3900 (offset -76 lines).
+Hunk #20 succeeded at 5220 (offset -99 lines).
+Hunk #21 succeeded at 5234 (offset -99 lines).
+Hunk #22 succeeded at 5261 (offset -99 lines).
+patching file fs/namespace.c
+Hunk #2 succeeded at 145 (offset -9 lines).
+Hunk #3 succeeded at 157 (offset -9 lines).
+Hunk #4 succeeded at 225 (offset -9 lines).
+Hunk #5 succeeded at 815 (offset -5 lines).
+Hunk #6 succeeded at 1173 (offset -5 lines).
+Hunk #7 succeeded at 1273 (offset -5 lines).
+Hunk #8 succeeded at 1326 (offset -5 lines).
+Hunk #9 succeeded at 3689 (offset -38 lines).
+Hunk #10 succeeded at 4934 (offset -43 lines).
+patching file fs/notify/fdinfo.c
+Hunk #3 succeeded at 92 (offset 2 lines).
+Hunk #4 succeeded at 107 (offset 2 lines).
+patching file fs/open.c
+patching file fs/proc/base.c
+Hunk #1 succeeded at 100 with fuzz 3.
+Hunk #2 succeeded at 1778 (offset -61 lines).
+Hunk #3 succeeded at 1791 (offset -61 lines).
+Hunk #4 succeeded at 2425 (offset -61 lines).
+patching file fs/proc/bootconfig.c
+patching file fs/proc/fd.c
+patching file fs/proc/task_mmu.c
+Hunk #1 succeeded at 20 (offset -1 lines).
+Hunk #2 succeeded at 275 (offset -1 lines).
+Hunk #3 succeeded at 297 (offset -1 lines).
+Hunk #4 succeeded at 899 with fuzz 1 (offset -22 lines).
+Hunk #5 succeeded at 962 (offset -28 lines).
+Hunk #6 succeeded at 1032 (offset -28 lines).
+Hunk #7 succeeded at 1770 (offset -30 lines).
+Hunk #8 succeeded at 1782 (offset -30 lines).
+patching file fs/proc_namespace.c
+patching file fs/read_write.c
+patching file fs/readdir.c
+patching file fs/stat.c
+patching file fs/statfs.c
+patching file fs/super.c
+Hunk #2 succeeded at 1073 (offset -11 lines).
+Hunk #3 succeeded at 1093 (offset -11 lines).
+patching file kernel/kallsyms.c
+patching file kernel/reboot.c
+Hunk #1 succeeded at 691 (offset -2 lines).
+Hunk #2 succeeded at 709 (offset -2 lines).
+patching file kernel/sys.c
+patching file mm/memory.c
+Hunk #1 succeeded at 78 with fuzz 1 (offset -1 lines).
+Hunk #2 succeeded at 5857 (offset -80 lines).
+patching file security/selinux/avc.c
+patching file security/selinux/hooks.c
+Hunk #2 succeeded at 6554 (offset -40 lines).
+Hunk #3 succeeded at 7225 (offset -41 lines).
+patching file security/selinux/selinuxfs.c
+Hunk #4 succeeded at 747 (offset -1 lines).
+Hunk #5 succeeded at 941 (offset -1 lines).
+Hunk #6 succeeded at 1048 (offset -1 lines).
+PATCH50_EXIT=0
+VMA_PAD_FIX=applied
+SUCOMPAT_FIX=applied
+=== PHASE4 config: 设备精确配置 ===
+  HOSTCC  scripts/kconfig/util.o
+  HOSTLD  scripts/kconfig/conf
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+OLD1_EXIT=0
+.config:7825:warning: override: reassigning to symbol LOCALVERSION
+.config:7826:warning: override: reassigning to symbol WERROR
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+OLD2_EXIT=0
+CONFIG_LOCALVERSION="-android14-11"
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_LTO_NONE=y
+CONFIG_CFI_CLANG=y
+CONFIG_KSU=y
+CONFIG_KSU_SUSFS=y
+CONFIG_SECURITY_SELINUX=y
+=== PHASE5 build Image (官方工具链) ===
+  CC      drivers/gnss/core.o
+  CC      drivers/interconnect/qcom/icc-common.o
+  AR      drivers/nvmem/built-in.a
+  CC      drivers/android/binder_alloc.o
+  AR      drivers/interconnect/qcom/built-in.a
+  CC      drivers/interconnect/core.o
+  AR      drivers/gnss/built-in.a
+-- SukiSU-Ultra version: 40939 [v4.2.0-b20dee70@builtin]
+-- KERNEL_VERSION: 6.1
+-- KERNEL_TYPE: GKI 2.0
+-- SukiSU-Ultra: using SUSFS_INLINE_HOOK
+-- KPM is disabled
+-- SukiSU-Ultra/compat: modern static_key_interface found
+
+-- SUSFS_VERSION: v2.3.0
+  CC      drivers/kernelsu/ksu.o
+  CC      drivers/interconnect/bulk.o
+  CC      drivers/android/android_debug_symbols.o
+  AR      drivers/interconnect/built-in.a
+  CC      drivers/android/vendor_hooks.o
+  CC      drivers/android/debug_kinfo.o
+  AR      drivers/kernelsu/built-in.a
+  AR      drivers/android/built-in.a
+  AR      drivers/built-in.a
+  AR      built-in.a
+  AR      vmlinux.a
+  LD      vmlinux.o
+  OBJCOPY modules.builtin.modinfo
+  GEN     modules.builtin
+  GEN     .vmlinux.objs
+  MODPOST vmlinux.symvers
+  CC      .vmlinux.export.o
+  UPD     include/generated/utsversion.h
+  CC      init/version-timestamp.o
+  LD      .tmp_vmlinux.btf
+  BTF     .btf.vmlinux.bin.o
+  LD      .tmp_vmlinux.kallsyms1
+  NM      .tmp_vmlinux.kallsyms1.syms
+  KSYMS   .tmp_vmlinux.kallsyms1.S
+  AS      .tmp_vmlinux.kallsyms1.S
+  LD      .tmp_vmlinux.kallsyms2
+  NM      .tmp_vmlinux.kallsyms2.syms
+  KSYMS   .tmp_vmlinux.kallsyms2.S
+  AS      .tmp_vmlinux.kallsyms2.S
+  LD      vmlinux
+  BTFIDS  vmlinux
+  NM      System.map
+  SORTTAB vmlinux
+  OBJCOPY arch/arm64/boot/Image
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+BUILD_EXIT=0
+-rw-r--r-- 1 runner runner 34761216 Sep 27 11:37 out/arch/arm64/boot/Image
+NEWVER=6.1.68-android14-11-g89b1d8af4725-dirty 
+=== PHASE6 build modules ===
+  BTF [M] net/ieee802154/6lowpan/ieee802154_6lowpan.ko
+  LD [M]  net/ieee802154/ieee802154.ko
+  LD [M]  net/ieee802154/ieee802154_socket.ko
+  BTF [M] net/ieee802154/ieee802154.ko
+  BTF [M] net/ieee802154/ieee802154_socket.ko
+  LD [M]  net/l2tp/l2tp_core.ko
+  LD [M]  net/l2tp/l2tp_ppp.ko
+  BTF [M] net/l2tp/l2tp_core.ko
+  BTF [M] net/l2tp/l2tp_ppp.ko
+  LD [M]  net/mac802154/mac802154.ko
+  LD [M]  net/nfc/nfc.ko
+  BTF [M] net/mac802154/mac802154.ko
+  BTF [M] net/nfc/nfc.ko
+  LD [M]  net/rfkill/rfkill.ko
+  BTF [M] net/rfkill/rfkill.ko
+  LD [M]  net/tipc/diag.ko
+  BTF [M] net/tipc/diag.ko
+  LD [M]  net/tipc/tipc.ko
+  BTF [M] net/tipc/tipc.ko
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+MODULES_EXIT=0
+KO_COUNT=61
+-rw-r--r-- 1 runner runner 25423847 Sep 27 11:38 /home/runner/work/tb321fu-susfs/tb321fu-susfs/modules.tgz
 ..... [中间省略] .....
-=== PHASE0 解官方工具链(从联想源码包内) ===
+=== PHASE0 解官方工具链(从内层包) ===
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 11  933M   11  111M    0     0   261M      0  0:00:03 --:--:--  0:00:03  261M 59  933M   59  558M    0     0   390M      0  0:00:02  0:00:01  0:00:01  390M100  933M  100  933M    0     0   388M      0  0:00:02  0:00:02 --:--:--  388M
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 19  933M   19  178M    0     0   351M      0  0:00:02 --:--:--  0:00:02  351M 60  933M   60  568M    0     0   376M      0  0:00:02  0:00:01  0:00:01  376M100  933M  100  933M    0     0   408M      0  0:00:02  0:00:02 --:--:--  408M
 SIZE=978645996
-tar: ./prebuilts/gcc/linux-x86/arm/arm-eabi-4.8: Not found in archive
-tar: ./prebuilts/build-tools/path/linux-x86: Not found in archive
-tar: Exiting with failure status due to previous errors
-CLANG=/tmp/all.sh: line 17: /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/prebuilts/clang/host/linux-x86/clang-r487747c/bin/clang: No such file or directory
-CLANGPATH=/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/prebuilts/clang/host/linux-x86/clang-r487747c/bin/clang
-GCC=/tmp/all.sh: line 19: /home/runner/work/tb321fu-susfs/tb321fu-susfs/src/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-androidkernel-gcc: No such file or directory
-TOOLCHAIN_OK=0  工具链不对,停止
+CLANG=Android (10087095, +pgo, +bolt, +lto, -mlgo, based on r487747c) clang version 17.0.2 (https://android.googlesource.com/toolchain/llvm-project d9f89f4d16663d5012e5c09495f3b30ece3d2362)
+BINUTILS=aarch64-linux-android-addr2line aarch64-linux-android-ar aarch64-linux-android-as aarch64-linux-android-c++filt 
+TOOLCHAIN_OK=1
+=== PHASE1 extract kernel ===
+TREE=kernel_tree/Makefile
+=== PHASE2 KernelSU ===
+[+] Setting up KernelSU...
+Cloning into 'KernelSU'...
+[+] Repository cloned.
+No local changes to save
+[-] Stashed current changes.
+Already up to date.
+[+] Repository updated.
+Switched to a new branch 'builtin'
+branch 'builtin' set up to track 'origin/builtin'.
+[-] Checked out builtin.
+[+] Symlink created.
+[+] Modified Makefile.
+[+] Modified Kconfig.
+[+] Done.
+KSU_DIR=KernelSU
+=== PHASE3 SUSFS ===
+Cloning into 'susfs4ksu'...
+patching file drivers/input/input.c
+patching file fs/Makefile
+patching file fs/exec.c
+Hunk #1 succeeded at 64 with fuzz 2.
+Hunk #2 succeeded at 1872 (offset -34 lines).
+Hunk #3 succeeded at 1891 (offset -34 lines).
+Hunk #4 succeeded at 1979 (offset -34 lines).
+patching file fs/namei.c
+Hunk #2 succeeded at 1581 (offset -10 lines).
+Hunk #3 succeeded at 1605 (offset -11 lines).
+Hunk #4 succeeded at 1617 (offset -11 lines).
+Hunk #5 succeeded at 1628 with fuzz 1 (offset -11 lines).
+Hunk #6 succeeded at 1646 (offset -12 lines).
+Hunk #7 succeeded at 1657 (offset -12 lines).
+Hunk #8 succeeded at 1690 (offset -12 lines).
+Hunk #9 succeeded at 1721 (offset -12 lines).
+Hunk #10 succeeded at 1742 (offset -12 lines).
+Hunk #11 succeeded at 1761 (offset -12 lines).
+Hunk #12 succeeded at 2075 (offset -12 lines).
+Hunk #13 succeeded at 2347 (offset -12 lines).
+Hunk #14 succeeded at 2545 (offset -12 lines).
+Hunk #15 succeeded at 3429 (offset -76 lines).
+Hunk #16 succeeded at 3561 (offset -76 lines).
+Hunk #17 succeeded at 3788 (offset -76 lines).
+Hunk #18 succeeded at 3829 (offset -76 lines).
+Hunk #19 succeeded at 3900 (offset -76 lines).
+Hunk #20 succeeded at 5220 (offset -99 lines).
+Hunk #21 succeeded at 5234 (offset -99 lines).
+Hunk #22 succeeded at 5261 (offset -99 lines).
+patching file fs/namespace.c
+Hunk #2 succeeded at 145 (offset -9 lines).
+Hunk #3 succeeded at 157 (offset -9 lines).
+Hunk #4 succeeded at 225 (offset -9 lines).
+Hunk #5 succeeded at 815 (offset -5 lines).
+Hunk #6 succeeded at 1173 (offset -5 lines).
+Hunk #7 succeeded at 1273 (offset -5 lines).
+Hunk #8 succeeded at 1326 (offset -5 lines).
+Hunk #9 succeeded at 3689 (offset -38 lines).
+Hunk #10 succeeded at 4934 (offset -43 lines).
+patching file fs/notify/fdinfo.c
+Hunk #3 succeeded at 92 (offset 2 lines).
+Hunk #4 succeeded at 107 (offset 2 lines).
+patching file fs/open.c
+patching file fs/proc/base.c
+Hunk #1 succeeded at 100 with fuzz 3.
+Hunk #2 succeeded at 1778 (offset -61 lines).
+Hunk #3 succeeded at 1791 (offset -61 lines).
+Hunk #4 succeeded at 2425 (offset -61 lines).
+patching file fs/proc/bootconfig.c
+patching file fs/proc/fd.c
+patching file fs/proc/task_mmu.c
+Hunk #1 succeeded at 20 (offset -1 lines).
+Hunk #2 succeeded at 275 (offset -1 lines).
+Hunk #3 succeeded at 297 (offset -1 lines).
+Hunk #4 succeeded at 899 with fuzz 1 (offset -22 lines).
+Hunk #5 succeeded at 962 (offset -28 lines).
+Hunk #6 succeeded at 1032 (offset -28 lines).
+Hunk #7 succeeded at 1770 (offset -30 lines).
+Hunk #8 succeeded at 1782 (offset -30 lines).
+patching file fs/proc_namespace.c
+patching file fs/read_write.c
+patching file fs/readdir.c
+patching file fs/stat.c
+patching file fs/statfs.c
+patching file fs/super.c
+Hunk #2 succeeded at 1073 (offset -11 lines).
+Hunk #3 succeeded at 1093 (offset -11 lines).
+patching file kernel/kallsyms.c
+patching file kernel/reboot.c
+Hunk #1 succeeded at 691 (offset -2 lines).
+Hunk #2 succeeded at 709 (offset -2 lines).
+patching file kernel/sys.c
+patching file mm/memory.c
+Hunk #1 succeeded at 78 with fuzz 1 (offset -1 lines).
+Hunk #2 succeeded at 5857 (offset -80 lines).
+patching file security/selinux/avc.c
+patching file security/selinux/hooks.c
+Hunk #2 succeeded at 6554 (offset -40 lines).
+Hunk #3 succeeded at 7225 (offset -41 lines).
+patching file security/selinux/selinuxfs.c
+Hunk #4 succeeded at 747 (offset -1 lines).
+Hunk #5 succeeded at 941 (offset -1 lines).
+Hunk #6 succeeded at 1048 (offset -1 lines).
+PATCH50_EXIT=0
+VMA_PAD_FIX=applied
+SUCOMPAT_FIX=applied
+=== PHASE4 config: 设备精确配置 ===
+  HOSTCC  scripts/kconfig/util.o
+  HOSTLD  scripts/kconfig/conf
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+OLD1_EXIT=0
+.config:7825:warning: override: reassigning to symbol LOCALVERSION
+.config:7826:warning: override: reassigning to symbol WERROR
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+OLD2_EXIT=0
+CONFIG_LOCALVERSION="-android14-11"
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_LTO_NONE=y
+CONFIG_CFI_CLANG=y
+CONFIG_KSU=y
+CONFIG_KSU_SUSFS=y
+CONFIG_SECURITY_SELINUX=y
+=== PHASE5 build Image (官方工具链) ===
+  CC      drivers/gnss/core.o
+  CC      drivers/interconnect/qcom/icc-common.o
+  AR      drivers/nvmem/built-in.a
+  CC      drivers/android/binder_alloc.o
+  AR      drivers/interconnect/qcom/built-in.a
+  CC      drivers/interconnect/core.o
+  AR      drivers/gnss/built-in.a
+-- SukiSU-Ultra version: 40939 [v4.2.0-b20dee70@builtin]
+-- KERNEL_VERSION: 6.1
+-- KERNEL_TYPE: GKI 2.0
+-- SukiSU-Ultra: using SUSFS_INLINE_HOOK
+-- KPM is disabled
+-- SukiSU-Ultra/compat: modern static_key_interface found
+
+-- SUSFS_VERSION: v2.3.0
+  CC      drivers/kernelsu/ksu.o
+  CC      drivers/interconnect/bulk.o
+  CC      drivers/android/android_debug_symbols.o
+  AR      drivers/interconnect/built-in.a
+  CC      drivers/android/vendor_hooks.o
+  CC      drivers/android/debug_kinfo.o
+  AR      drivers/kernelsu/built-in.a
+  AR      drivers/android/built-in.a
+  AR      drivers/built-in.a
+  AR      built-in.a
+  AR      vmlinux.a
+  LD      vmlinux.o
+  OBJCOPY modules.builtin.modinfo
+  GEN     modules.builtin
+  GEN     .vmlinux.objs
+  MODPOST vmlinux.symvers
+  CC      .vmlinux.export.o
+  UPD     include/generated/utsversion.h
+  CC      init/version-timestamp.o
+  LD      .tmp_vmlinux.btf
+  BTF     .btf.vmlinux.bin.o
+  LD      .tmp_vmlinux.kallsyms1
+  NM      .tmp_vmlinux.kallsyms1.syms
+  KSYMS   .tmp_vmlinux.kallsyms1.S
+  AS      .tmp_vmlinux.kallsyms1.S
+  LD      .tmp_vmlinux.kallsyms2
+  NM      .tmp_vmlinux.kallsyms2.syms
+  KSYMS   .tmp_vmlinux.kallsyms2.S
+  AS      .tmp_vmlinux.kallsyms2.S
+  LD      vmlinux
+  BTFIDS  vmlinux
+  NM      System.map
+  SORTTAB vmlinux
+  OBJCOPY arch/arm64/boot/Image
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+BUILD_EXIT=0
+-rw-r--r-- 1 runner runner 34761216 Sep 27 11:37 out/arch/arm64/boot/Image
+NEWVER=6.1.68-android14-11-g89b1d8af4725-dirty 
+=== PHASE6 build modules ===
+  BTF [M] net/ieee802154/6lowpan/ieee802154_6lowpan.ko
+  LD [M]  net/ieee802154/ieee802154.ko
+  LD [M]  net/ieee802154/ieee802154_socket.ko
+  BTF [M] net/ieee802154/ieee802154.ko
+  BTF [M] net/ieee802154/ieee802154_socket.ko
+  LD [M]  net/l2tp/l2tp_core.ko
+  LD [M]  net/l2tp/l2tp_ppp.ko
+  BTF [M] net/l2tp/l2tp_core.ko
+  BTF [M] net/l2tp/l2tp_ppp.ko
+  LD [M]  net/mac802154/mac802154.ko
+  LD [M]  net/nfc/nfc.ko
+  BTF [M] net/mac802154/mac802154.ko
+  BTF [M] net/nfc/nfc.ko
+  LD [M]  net/rfkill/rfkill.ko
+  BTF [M] net/rfkill/rfkill.ko
+  LD [M]  net/tipc/diag.ko
+  BTF [M] net/tipc/diag.ko
+  LD [M]  net/tipc/tipc.ko
+  BTF [M] net/tipc/tipc.ko
+make[1]: Leaving directory '/home/runner/work/tb321fu-susfs/tb321fu-susfs/src/kernel_tree/out'
+MODULES_EXIT=0
+KO_COUNT=61
+-rw-r--r-- 1 runner runner 25423847 Sep 27 11:38 /home/runner/work/tb321fu-susfs/tb321fu-susfs/modules.tgz
