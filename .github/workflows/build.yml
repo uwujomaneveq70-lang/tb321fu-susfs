@@ -55,24 +55,12 @@ jobs:
           patch -p1 --fuzz=3 < 50_add_susfs_in_gki-android14-6.1.patch
           echo "PATCH50_EXIT=$?"
           echo "=== PHASE4B 补 VMA_PAD_START ==="
-          if grep -q "VMA_PAD_START" include/linux/mm.h; then echo "VMA_PAD_FIX=already"; else printf '\n#ifndef VMA_PAD_START\n#define VMA_PAD_START(vma) ((vma)->vm_start)\n#endif\n' >> include/linux/mm.h; echo "VMA_PAD_FIX=applied"; fi
+          if grep -q "VMA_PAD_START" include/linux/mm.h; then echo "VMA_PAD_FIX=already"; else printf '%s\n' '' '#ifndef VMA_PAD_START' '#define VMA_PAD_START(vma) ((vma)->vm_start)' '#endif' >> include/linux/mm.h; echo "VMA_PAD_FIX=applied"; fi
           echo "=== PHASE4C 补 ksu_handle_post_execveat_sucompat ==="
           if grep -q "ksu_handle_post_execveat_sucompat" fs/susfs.c; then
             echo "SUCOMPAT_FIX=already"
           else
-            cat >> fs/susfs.c <<'CEOF'
-
-#ifdef CONFIG_KSU_SUSFS
-extern int ksu_install_su_fd(void);
-int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,
-                                      void *envp_user, int *__never_use_flags, int *retval)
-{
-    if (*retval >= 0)
-        (void)ksu_install_su_fd();
-    return 0;
-}
-#endif
-CEOF
+            printf '%s\n' '' '#ifdef CONFIG_KSU_SUSFS' 'extern int ksu_install_su_fd(void);' 'int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp_user, int *__never_use_flags, int *retval)' '{' '    if (*retval >= 0)' '        (void)ksu_install_su_fd();' '    return 0;' '}' '#endif' >> fs/susfs.c
             echo "SUCOMPAT_FIX=applied"
           fi
           grep -c "ksu_handle_post_execveat_sucompat" fs/susfs.c
