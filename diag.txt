@@ -1,0 +1,10 @@
+run_id=36304947201 steps done
+total 1859300
+drwxr-xr-x  5 runner runner      4096 Sep 27 08:03 .
+drwxr-xr-x  5 runner runner      4096 Sep 27 08:03 ..
+drwxr-xr-x  2 runner runner      4096 Sep 27 08:03 k
+-rwxr-xr-x  1 runner runner 925233757 Feb 10  2025 kernel-6.1.68.tar.gz
+drwxr-xr-x 30 runner runner     12288 Sep 27 08:03 kernel_tree
+-rw-r--r--  1 runner runner 978645996 Sep 27 08:03 lenovo.tar.gz
+drwxr-xr-x  6 runner runner      4096 Sep 27 08:03 susfs4ksu
+ls: cannot access 'src/kernel_tree/out/': No such file or directory
