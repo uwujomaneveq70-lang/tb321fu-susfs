@@ -1,4 +1,4 @@
-name: Build-SUSFS-Kernel-TB321FU
+name: Build-SUSFS-Kernel-TB321FU-v11
 
 on:
   workflow_dispatch:
@@ -17,8 +17,6 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm cpio rsync patch dwarves
-          clang --version | head -1
-          pahole --version || true
 
       - name: run-all
         continue-on-error: true
@@ -26,10 +24,19 @@ jobs:
           cat > /tmp/all.sh <<'SCRIPT'
           set +e
           W=$GITHUB_WORKSPACE
+          cd $W
+          echo "=== 工具链: 官方 clang-r487747c (17.0.2) ==="
+          mkdir -p tc && cd tc
+          if [ ! -d clang-r487747c ]; then
+            curl -L --retry 5 --retry-delay 5 -o clang.tar.gz "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r487747c.tar.gz"
+            mkdir -p clang-r487747c && tar -xzf clang.tar.gz -C clang-r487747c
+          fi
+          export PATH=$W/tc/clang-r487747c/bin:$PATH
           echo "CLANG=$(clang --version 2>/dev/null | head -1)"
           echo "PAHOLE=$(pahole --version 2>/dev/null)"
-          mkdir -p $W/src && cd $W/src
+          cd $W
           echo "=== PHASE1 download ==="
+          mkdir -p src && cd src
           if [ ! -s lenovo.tar.gz ]; then
             curl -L --retry 8 --retry-delay 10 --retry-all-errors -A "Mozilla/5.0" -o lenovo.tar.gz "https://download.lenovo.com/consumer/mobiles/legion_tab_y700(tb321fu)_opensource_16.1.02.082.tar.gz"
           fi
@@ -39,12 +46,12 @@ jobs:
           tar -xzf lenovo.tar.gz ./kernel-6.1.68.tar.gz
           mkdir -p k && tar -xzf kernel-6.1.68.tar.gz -C k ./kernel
           mv k/kernel kernel_tree
-          echo "TREE=$(ls kernel_tree/Makefile)"
+          echo "KIRBY=$(ls kernel_tree/arch/arm64/configs/kirby_defconfig)"
           echo "=== PHASE3 KernelSU ==="
           cd kernel_tree
           curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
           echo "KSU_DIR=$(ls -d KernelSU 2>/dev/null)"
-          echo "=== PHASE4 SUSFS(50_ 主补丁) ==="
+          echo "=== PHASE4 SUSFS ==="
           cd $W/src
           rm -rf susfs4ksu
           git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1 susfs4ksu
@@ -56,38 +63,34 @@ jobs:
           echo "PATCH50_EXIT=$?"
           echo "=== PHASE4B 补 VMA_PAD_START ==="
           if grep -q "VMA_PAD_START" include/linux/mm.h; then echo "VMA_PAD_FIX=already"; else printf '%s\n' '' '#ifndef VMA_PAD_START' '#define VMA_PAD_START(vma) ((vma)->vm_start)' '#endif' >> include/linux/mm.h; echo "VMA_PAD_FIX=applied"; fi
-          echo "=== PHASE4C 补 ksu_handle_post_execveat_sucompat(空实现) ==="
-          if grep -q "ksu_handle_post_execveat_sucompat" fs/susfs.c; then
-            echo "SUCOMPAT_FIX=already"
-          else
-            printf '%s\n' '' '#ifdef CONFIG_KSU_SUSFS' 'int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp_user, int *__never_use_flags, int *retval)' '{' '    return 0;' '}' '#endif' >> fs/susfs.c
-            echo "SUCOMPAT_FIX=applied"
-          fi
-          grep -c "ksu_handle_post_execveat_sucompat" fs/susfs.c
-          echo "=== PHASE5 config ==="
+          echo "=== PHASE4C 补 ksu_handle_post_execveat_sucompat ==="
+          if grep -q "ksu_handle_post_execveat_sucompat" fs/susfs.c; then echo "SUCOMPAT_FIX=already"; else printf '%s\n' '' '#ifdef CONFIG_KSU_SUSFS' 'int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp_user, int *__never_use_flags, int *retval)' '{' '    return 0;' '}' '#endif' >> fs/susfs.c; echo "SUCOMPAT_FIX=applied"; fi
+          echo "=== PHASE5 config: 官方 kirby_defconfig ==="
           rm -f .config
-          mkdir -p out && cp $W/device.config out/.config
+          mkdir -p out
+          make ARCH=arm64 LLVM=1 O=out kirby_defconfig 2>&1 | tail -20
+          echo "KIRBY_EXIT=$?"
+          echo "KIRBY_LINES=$(wc -l < out/.config)"
           sed -i '/^CONFIG_TRIM_UNUSED_KSYMS=/d; /^CONFIG_UNUSED_KSYMS_WHITELIST=/d' out/.config
-          make ARCH=arm64 LLVM=1 O=out olddefconfig
+          make ARCH=arm64 LLVM=1 O=out olddefconfig 2>&1 | tail -8
           echo "OLD1_EXIT=$?"
-          printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_UNUSED_KSYMS_WHITELIST=""' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> out/.config
-          make ARCH=arm64 LLVM=1 O=out olddefconfig
+          printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> out/.config
+          make ARCH=arm64 LLVM=1 O=out olddefconfig 2>&1 | tail -8
           echo "OLD2_EXIT=$?"
-          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_DEBUG_INFO_BTF|^CONFIG_LOCALVERSION" out/.config
-          echo "KSU_SUSFS_LINES=$(grep -c 'CONFIG_KSU_SUSFS' out/.config)"
-          echo "=== PHASE6 build ==="
+          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_TRIM_UNUSED_KSYMS|^CONFIG_LOCALVERSION|^CONFIG_MODULE_SIG=|^CONFIG_CFI_CLANG|^CONFIG_DEBUG_INFO_BTF" out/.config
+          echo "=== PHASE6 build Image ==="
           make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -60
           E1=${PIPESTATUS[0]}
           echo "BUILD_EXIT=$E1"
-          if [ "$E1" -ne 0 ] && [ ! -f out/arch/arm64/boot/Image ]; then
-            echo "=== PHASE6B 重试(关掉 BTF) ==="
-            printf '%s\n' 'CONFIG_DEBUG_INFO_BTF=n' 'CONFIG_DEBUG_INFO_BTF_MODULES=n' >> out/.config
-            make ARCH=arm64 LLVM=1 O=out olddefconfig
-            make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -60
-            echo "BUILD2_EXIT=${PIPESTATUS[0]}"
-          fi
           ls -la out/arch/arm64/boot/Image 2>&1
-          echo "SUSFS_SYMBOLS=$(strings out/arch/arm64/boot/Image 2>/dev/null | grep -ci susfs)"
+          echo "NEWVER=$(grep -a -o -E '6\.1\.[0-9]+-android[0-9]+-[0-9]+[a-z0-9-]*' out/arch/arm64/boot/Image 2>/dev/null | sort -u | head -3 | tr '\n' ' ')"
+          echo "SUSFS_SYMBOLS=$(grep -a -c susfs out/arch/arm64/boot/Image 2>/dev/null)"
+          echo "=== PHASE7 build modules ==="
+          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" modules 2>&1 | tail -20
+          echo "MODULES_EXIT=${PIPESTATUS[0]}"
+          echo "KO_COUNT=$(find out -name '*.ko' 2>/dev/null | wc -l)"
+          tar -czf $W/modules.tgz $(find out -name '*.ko' 2>/dev/null) 2>/dev/null || true
+          ls -la $W/modules.tgz 2>/dev/null
           SCRIPT
           bash /tmp/all.sh > $GITHUB_WORKSPACE/diag.txt 2>&1
           tail -80 $GITHUB_WORKSPACE/diag.txt || true
@@ -106,10 +109,12 @@ jobs:
           git commit -m "diag" || true
           git push || true
 
-      - name: upload-image
+      - name: upload
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kernel-Image-susfs
-          path: src/kernel_tree/out/arch/arm64/boot/Image
+          path: |
+            src/kernel_tree/out/arch/arm64/boot/Image
+            modules.tgz
           if-no-files-found: warn
