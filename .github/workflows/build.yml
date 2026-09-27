@@ -3,76 +3,85 @@ name: Build-SUSFS-Kernel-TB321FU
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
 
-      - name: 1-install-deps
+      - name: deps
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm
-          clang --version | head -2
+          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm cpio rsync
 
-      - name: 2-download-lenovo-source
+      - name: prepare-and-config
         run: |
+          {
+          set -x
+          cd $GITHUB_WORKSPACE
           mkdir -p src && cd src
           curl -L --retry 3 -A "Mozilla/5.0" -o lenovo.tar.gz "https://download.lenovo.com/consumer/mobiles/legion_tab_y700(tb321fu)_opensource_16.1.02.082.tar.gz"
-          ls -la lenovo.tar.gz
-
-      - name: 3-extract-kernel
-        run: |
-          cd src
           tar -xzf lenovo.tar.gz ./kernel-6.1.68.tar.gz
           mkdir -p k && tar -xzf kernel-6.1.68.tar.gz -C k ./kernel
           mv k/kernel kernel_tree
-          head -5 kernel_tree/Makefile
-
-      - name: 4-put-device-config
-        run: |
-          cd src/kernel_tree
+          cd kernel_tree
           cp ../../device.config .config
-          echo "config lines: $(wc -l < .config)"
-
-      - name: 5-add-sukisu
-        run: |
-          cd src/kernel_tree
           curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
-          ls -d KernelSU
-
-      - name: 6-apply-susfs
-        run: |
-          cd src
+          cd $GITHUB_WORKSPACE/src
           git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1 susfs4ksu
           cd kernel_tree
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./ || true
           cp ../susfs4ksu/kernel_patches/fs/* ./fs/ || true
           cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/ || true
-          patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch || echo "patch offset, continue"
+          patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch
+          echo "PATCH_EXIT=$?"
+          printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> .config
+          echo "config lines before make: $(wc -l < .config)"
+          mkdir -p out && cp .config out/.config
+          echo "=== A. make O=out olddefconfig ==="
+          make ARCH=arm64 LLVM=1 O=out olddefconfig
+          echo "OLDDEFCONFIG_EXIT=$?"
+          echo "=== B. out 目录内容 ==="
+          ls -la out/ | head -20
+          echo "=== C. KSU 开关核对 ==="
+          grep -E "CONFIG_KSU|CONFIG_LOCALVERSION" out/.config | head -20
+          grep -c "CONFIG_KSU=y" out/.config
+          echo "=== D. 如果没有 out/.config, 试试 tree 内直接 olddefconfig ==="
+          if [ ! -f out/.config ]; then make ARCH=arm64 LLVM=1 olddefconfig; echo "FALLBACK_EXIT=$?"; grep -E "CONFIG_KSU=y|CONFIG_LOCALVERSION" .config | head; fi
+          } > $GITHUB_WORKSPACE/diag1.txt 2>&1
+          tail -70 $GITHUB_WORKSPACE/diag1.txt
 
-      - name: 7-enable-switches
+      - name: build
         run: |
-          cd src/kernel_tree
-          printf '%s\n' "CONFIG_KSU=y" "CONFIG_KSU_SUSFS=y" "CONFIG_KSU_SUSFS_SUS_PATH=y" "CONFIG_KSU_SUSFS_SUS_MOUNT=y" "CONFIG_KSU_SUSFS_SUS_KSTAT=y" "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" "CONFIG_KSU_SUSFS_SUS_SU=n" "CONFIG_KSU_SUSFS_ENABLE_LOG=n" "CONFIG_LOCALVERSION=\"-android14-11\"" "CONFIG_WERROR=n" >> .config
-          make ARCH=arm64 LLVM=1 O=out olddefconfig 2>&1 | tail -5
-          grep -E "CONFIG_KSU=|CONFIG_KSU_SUSFS=|CONFIG_LOCALVERSION" out/.config
+          {
+          set -x
+          cd $GITHUB_WORKSPACE/src/kernel_tree
+          if [ ! -f out/.config ]; then mkdir -p out && cp .config out/.config; fi
+          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image
+          echo "BUILD_EXIT=$?"
+          } > $GITHUB_WORKSPACE/diag2-full.txt 2>&1
+          tail -250 $GITHUB_WORKSPACE/diag2-full.txt > $GITHUB_WORKSPACE/diag2.txt
+          cat $GITHUB_WORKSPACE/diag2.txt
+          ls -la out/arch/arm64/boot/Image || true
 
-      - name: 8-build-image
+      - name: publish-diag
+        if: always()
         run: |
-          cd src/kernel_tree
-          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -40
-          ls -la out/arch/arm64/boot/Image
+          cd $GITHUB_WORKSPACE
+          git config user.name diag
+          git config user.email diag@example.com
+          git add -f diag1.txt diag2.txt
+          git commit -m "diag" || echo "nothing to commit"
+          git push || echo "push failed"
 
-      - name: 9-verify
-        run: |
-          cd src/kernel_tree
-          strings out/arch/arm64/boot/Image | grep -m3 -E "6\.1\.[0-9]+-android14" || true
-          echo "susfs symbols: $(strings out/arch/arm64/boot/Image | grep -ci susfs)"
-
-      - name: 10-upload
+      - name: upload
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: kernel-Image-susfs
           path: src/kernel_tree/out/arch/arm64/boot/Image
+          if-no-files-found: error
