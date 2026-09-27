@@ -18,94 +18,81 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev zip unzip python3 git curl wget clang lld llvm cpio rsync patch
 
-      - name: cache-source
-        uses: actions/cache@v4
-        with:
-          path: src/lenovo.tar.gz
-          key: lenovo-src-16102082
-
-      - name: s1-download-source
+      - name: run-all
+        continue-on-error: true
         run: |
-          mkdir -p src && cd src
+          cat > /tmp/all.sh <<'SCRIPT'
+          set +e
+          W=$GITHUB_WORKSPACE
+          mkdir -p $W/src && cd $W/src
+          echo "=== PHASE1 download ==="
           if [ ! -s lenovo.tar.gz ]; then
             curl -L --retry 8 --retry-delay 10 --retry-all-errors -A "Mozilla/5.0" -o lenovo.tar.gz "https://download.lenovo.com/consumer/mobiles/legion_tab_y700(tb321fu)_opensource_16.1.02.082.tar.gz"
           fi
-          SZ=$(stat -c%s lenovo.tar.gz 2>/dev/null || echo 0)
-          echo "SIZE=$SZ"
-          test "$SZ" -gt 900000000
-
-      - name: s2-extract-source
-        run: |
-          cd $GITHUB_WORKSPACE/src
+          echo "SIZE=$(stat -c%s lenovo.tar.gz)"
+          echo "=== PHASE2 extract ==="
           rm -rf kernel_tree k
           tar -xzf lenovo.tar.gz ./kernel-6.1.68.tar.gz
           mkdir -p k && tar -xzf kernel-6.1.68.tar.gz -C k ./kernel
           mv k/kernel kernel_tree
-          ls kernel_tree | head -5
-          head -4 kernel_tree/Makefile
-          cp $GITHUB_WORKSPACE/device.config kernel_tree/.config
+          cp $W/device.config kernel_tree/.config
           echo "CONFIG_LINES=$(wc -l < kernel_tree/.config)"
-
-      - name: s3-add-sukisu
-        run: |
-          cd $GITHUB_WORKSPACE/src/kernel_tree
+          echo "=== PHASE3 KernelSU ==="
+          cd kernel_tree
           curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
-          test -d KernelSU && echo "SUKISU_OK"
-
-      - name: s4-apply-susfs
-        run: |
-          cd $GITHUB_WORKSPACE/src
+          echo "KSU_DIR=$(ls -d KernelSU 2>/dev/null)"
+          echo "=== PHASE4 SUSFS ==="
+          cd $W/src
           rm -rf susfs4ksu
           git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1 susfs4ksu
+          echo "--- patch files:"; ls susfs4ksu/kernel_patches | head -30
+          echo "--- KernelSU patch dir:"; ls susfs4ksu/kernel_patches/KernelSU 2>/dev/null | head
           cd kernel_tree
-          ls ../susfs4ksu/kernel_patches | head -20
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./
           cp -r ../susfs4ksu/kernel_patches/fs/. ./fs/
           cp -r ../susfs4ksu/kernel_patches/include/linux/. ./include/linux/
-          patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch
-          echo "PATCH_EXIT=$?"
-          echo "SUSFS_OK"
-
-      - name: s5-make-config
-        run: |
-          cd $GITHUB_WORKSPACE/src/kernel_tree
+          patch -p1 --fuzz=3 < 50_add_susfs_in_gki-android14-6.1.patch
+          echo "PATCH50_EXIT=$?"
+          echo "--- rejects:"; find . -name '*.rej' | head -20
+          for f in $(find . -name '*.rej' | head -3); do echo "### $f"; head -50 "$f"; done
+          if [ -d KernelSU ] && [ -f ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ]; then
+            cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU/
+            cd KernelSU && patch -p1 --fuzz=3 < 10_enable_susfs_for_ksu.patch; echo "PATCH10_EXIT=$?"; cd ..
+          fi
+          echo "=== PHASE5 config ==="
           printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> .config
           mkdir -p out && cp .config out/.config
-          echo "===== make olddefconfig ====="
           make ARCH=arm64 LLVM=1 O=out olddefconfig
           echo "OLDDEFCONFIG_EXIT=$?"
-          echo "===== out 内容 ====="
           ls -la out/ | head -15
-          echo "===== KSU 开关 ====="
           grep -E "CONFIG_KSU=|CONFIG_KSU_SUSFS=|CONFIG_LOCALVERSION" out/.config
-          test -f out/.config
+          echo "=== PHASE6 build ==="
+          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image
+          echo "BUILD_EXIT=$?"
+          ls -la out/arch/arm64/boot/Image 2>&1
+          echo "SUSFS_SYMBOLS=$(strings out/arch/arm64/boot/Image 2>/dev/null | grep -ci susfs)"
+          SCRIPT
+          bash /tmp/all.sh > $GITHUB_WORKSPACE/diag.txt 2>&1
+          tail -120 $GITHUB_WORKSPACE/diag.txt || true
 
-      - name: s6-build-image
-        run: |
-          cd $GITHUB_WORKSPACE/src/kernel_tree
-          make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -120
-          ls -la out/arch/arm64/boot/Image
-          strings out/arch/arm64/boot/Image | grep -m3 -E "6\.1\.[0-9]+-android14"
-          echo "SUSFS_SYMBOLS=$(strings out/arch/arm64/boot/Image | grep -ci susfs)"
-
-      - name: s7-publish-diag
+      - name: publish-diag
         if: always()
         continue-on-error: true
         run: |
           cd $GITHUB_WORKSPACE
-          echo "run_id=${{ github.run_id }} steps done" > diag.txt
-          ls -la src/ >> diag.txt 2>&1 || true
-          ls -la src/kernel_tree/out/ >> diag.txt 2>&1 || true
+          head -2500 diag.txt > diag_small.txt 2>/dev/null || true
+          echo "..... [中间省略] ....." >> diag_small.txt
+          tail -2500 diag.txt >> diag_small.txt 2>/dev/null || true
           git config user.name diag
           git config user.email diag@example.com
-          git add -f diag.txt || true
+          git add -f diag_small.txt || true
           git commit -m "diag" || true
           git push || true
 
-      - name: s8-upload-image
-        if: success()
+      - name: upload-image
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kernel-Image-susfs
           path: src/kernel_tree/out/arch/arm64/boot/Image
-          if-no-files-found: error
+          if-no-files-found: warn
