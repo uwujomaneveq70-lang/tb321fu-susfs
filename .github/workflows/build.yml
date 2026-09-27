@@ -52,6 +52,14 @@ jobs:
           cp -r ../susfs4ksu/kernel_patches/include/linux/. ./include/linux/
           patch -p1 --fuzz=3 < 50_add_susfs_in_gki-android14-6.1.patch
           echo "PATCH50_EXIT=$?"
+          echo "=== PHASE4B 补 VMA_PAD_START(OPPO 专有宏) ==="
+          if grep -q "VMA_PAD_START" include/linux/mm.h; then
+            echo "VMA_PAD_FIX=already"
+          else
+            printf '\n#ifndef VMA_PAD_START\n#define VMA_PAD_START(vma) ((vma)->vm_start)\n#endif\n' >> include/linux/mm.h
+            echo "VMA_PAD_FIX=applied"
+          fi
+          grep -n "VMA_PAD_START" include/linux/mm.h | head -3
           echo "=== PHASE5 config(放进 out/ + 关掉 TRIM) ==="
           rm -f .config
           mkdir -p out && cp $W/device.config out/.config
@@ -73,7 +81,7 @@ jobs:
           make ARCH=arm64 LLVM=1 O=out olddefconfig
           echo "OLD2_EXIT=$?"
           echo "--- 关键开关核对 ---"
-          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_TRIM_UNUSED_KSYMS|^CONFIG_UNUSED_KSYMS_WHITELIST|^CONFIG_LOCALVERSION|^CONFIG_MODULE_SIG=" out/.config
+          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_TRIM_UNUSED_KSYMS|^CONFIG_LOCALVERSION|^CONFIG_MODULE_SIG=" out/.config
           echo "KSU_SUSFS_LINES=$(grep -c 'CONFIG_KSU_SUSFS' out/.config)"
           echo "CONFIG_LINES_TOTAL=$(wc -l < out/.config)"
           echo "=== PHASE6 build ==="
