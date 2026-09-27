@@ -56,11 +56,11 @@ jobs:
           echo "PATCH50_EXIT=$?"
           echo "=== PHASE4B 补 VMA_PAD_START ==="
           if grep -q "VMA_PAD_START" include/linux/mm.h; then echo "VMA_PAD_FIX=already"; else printf '%s\n' '' '#ifndef VMA_PAD_START' '#define VMA_PAD_START(vma) ((vma)->vm_start)' '#endif' >> include/linux/mm.h; echo "VMA_PAD_FIX=applied"; fi
-          echo "=== PHASE4C 补 ksu_handle_post_execveat_sucompat ==="
+          echo "=== PHASE4C 补 ksu_handle_post_execveat_sucompat(空实现) ==="
           if grep -q "ksu_handle_post_execveat_sucompat" fs/susfs.c; then
             echo "SUCOMPAT_FIX=already"
           else
-            printf '%s\n' '' '#ifdef CONFIG_KSU_SUSFS' 'extern int ksu_install_su_fd(void);' 'int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp_user, int *__never_use_flags, int *retval)' '{' '    if (*retval >= 0)' '        (void)ksu_install_su_fd();' '    return 0;' '}' '#endif' >> fs/susfs.c
+            printf '%s\n' '' '#ifdef CONFIG_KSU_SUSFS' 'int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp_user, int *__never_use_flags, int *retval)' '{' '    return 0;' '}' '#endif' >> fs/susfs.c
             echo "SUCOMPAT_FIX=applied"
           fi
           grep -c "ksu_handle_post_execveat_sucompat" fs/susfs.c
@@ -75,7 +75,7 @@ jobs:
           echo "OLD2_EXIT=$?"
           grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_DEBUG_INFO_BTF|^CONFIG_LOCALVERSION" out/.config
           echo "KSU_SUSFS_LINES=$(grep -c 'CONFIG_KSU_SUSFS' out/.config)"
-          echo "=== PHASE6 build (带 BTF) ==="
+          echo "=== PHASE6 build ==="
           make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -60
           E1=${PIPESTATUS[0]}
           echo "BUILD_EXIT=$E1"
@@ -83,7 +83,6 @@ jobs:
             echo "=== PHASE6B 重试(关掉 BTF) ==="
             printf '%s\n' 'CONFIG_DEBUG_INFO_BTF=n' 'CONFIG_DEBUG_INFO_BTF_MODULES=n' >> out/.config
             make ARCH=arm64 LLVM=1 O=out olddefconfig
-            grep -E "^CONFIG_DEBUG_INFO_BTF" out/.config
             make -j$(nproc) ARCH=arm64 LLVM=1 O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -60
             echo "BUILD2_EXIT=${PIPESTATUS[0]}"
           fi
