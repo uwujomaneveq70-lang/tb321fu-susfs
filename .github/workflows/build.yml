@@ -1,4 +1,4 @@
-name: Build-SUSFS-Kernel-TB321FU-v14
+name: Build-Control-Kernel-TB321FU-v15
 
 on:
   workflow_dispatch:
@@ -25,7 +25,7 @@ jobs:
           set +e
           W=$GITHUB_WORKSPACE
           cd $W
-          echo "=== PHASE0 解官方工具链(从内层包) ==="
+          echo "=== PHASE0 官方工具链 ==="
           mkdir -p src && cd src
           if [ ! -s lenovo.tar.gz ]; then
             curl -L --retry 8 --retry-delay 10 --retry-all-errors -A "Mozilla/5.0" -o lenovo.tar.gz "https://download.lenovo.com/consumer/mobiles/legion_tab_y700(tb321fu)_opensource_16.1.02.082.tar.gz"
@@ -40,58 +40,44 @@ jobs:
           export CLANG_TRIPLE=aarch64-linux-gnu-
           export CROSS_COMPILE=$GCCBIN/aarch64-linux-androidkernel-
           echo "CLANG=$($TC/bin/clang --version 2>&1 | head -1)"
-          echo "BINUTILS=$(ls $GCCBIN 2>/dev/null | head -4 | tr '\n' ' ')"
           V=$($TC/bin/clang --version 2>&1 | head -1)
           case "$V" in
             *17.0.2*) echo "TOOLCHAIN_OK=1" ;;
             *) echo "TOOLCHAIN_OK=0  工具链不对,停止"; exit 9 ;;
           esac
-          echo "=== PHASE1 extract kernel ==="
+          echo "=== PHASE1 extract kernel (不打任何补丁) ==="
           rm -rf kernel_tree k
           mkdir -p k && tar -xzf kernel-6.1.68.tar.gz -C k ./kernel
           mv k/kernel kernel_tree
           echo "TREE=$(ls kernel_tree/Makefile)"
-          echo "=== PHASE2 KernelSU ==="
+          echo "=== PHASE2 config: 设备配置 + 放开模块校验 ==="
           cd kernel_tree
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
-          echo "KSU_DIR=$(ls -d KernelSU 2>/dev/null)"
-          echo "=== PHASE3 SUSFS ==="
-          cd $W/src
-          rm -rf susfs4ksu
-          git clone --depth 1 https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android14-6.1 susfs4ksu
-          cd kernel_tree
-          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./
-          cp -r ../susfs4ksu/kernel_patches/fs/. ./fs/
-          cp -r ../susfs4ksu/kernel_patches/include/linux/. ./include/linux/
-          patch -p1 --fuzz=3 < 50_add_susfs_in_gki-android14-6.1.patch
-          echo "PATCH50_EXIT=$?"
-          if grep -q "VMA_PAD_START" include/linux/mm.h; then echo "VMA_PAD_FIX=already"; else printf '%s\n' '' '#ifndef VMA_PAD_START' '#define VMA_PAD_START(vma) ((vma)->vm_start)' '#endif' >> include/linux/mm.h; echo "VMA_PAD_FIX=applied"; fi
-          if grep -q "ksu_handle_post_execveat_sucompat" fs/susfs.c; then echo "SUCOMPAT_FIX=already"; else printf '%s\n' '' '#ifdef CONFIG_KSU_SUSFS' 'int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv, void *envp_user, int *__never_use_flags, int *retval)' '{' '    return 0;' '}' '#endif' >> fs/susfs.c; echo "SUCOMPAT_FIX=applied"; fi
-          echo "=== PHASE4 config: 设备精确配置 ==="
           rm -f .config
           mkdir -p out && cp $W/device.config out/.config
           sed -i '/^CONFIG_TRIM_UNUSED_KSYMS=/d; /^CONFIG_UNUSED_KSYMS_WHITELIST=/d' out/.config
+          sed -i '/^CONFIG_MODVERSIONS=/d; /^CONFIG_MODULE_SIG/d; /^CONFIG_MODULE_SIG_KEY/d; /^CONFIG_MODULE_SIG_FORCE/d' out/.config
           make ARCH=arm64 CC=$TC/bin/clang O=out olddefconfig 2>&1 | tail -6
           echo "OLD1_EXIT=$?"
-          printf '%s\n' 'CONFIG_KSU=y' 'CONFIG_KSU_SUSFS=y' 'CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_PATH=y' 'CONFIG_KSU_SUSFS_SUS_MOUNT=y' 'CONFIG_KSU_SUSFS_SUS_KSTAT=y' 'CONFIG_KSU_SUSFS_SPOOF_UNAME=y' 'CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y' 'CONFIG_KSU_SUSFS_OPEN_REDIRECT=y' 'CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y' 'CONFIG_KSU_SUSFS_SUS_SU=n' 'CONFIG_KSU_SUSFS_ENABLE_LOG=n' 'CONFIG_UNUSED_KSYMS_WHITELIST=""' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> out/.config
+          printf '%s\n' '# CONFIG_MODVERSIONS is not set' '# CONFIG_MODULE_SIG is not set' '# CONFIG_MODULE_SIG_FORCE is not set' 'CONFIG_UNUSED_KSYMS_WHITELIST=""' 'CONFIG_LOCALVERSION="-android14-11"' 'CONFIG_WERROR=n' >> out/.config
           make ARCH=arm64 CC=$TC/bin/clang O=out olddefconfig 2>&1 | tail -6
           echo "OLD2_EXIT=$?"
-          grep -E "^CONFIG_KSU=|^CONFIG_KSU_SUSFS=|^CONFIG_SECURITY_SELINUX=|^CONFIG_TRIM_UNUSED_KSYMS|^CONFIG_LOCALVERSION|^CONFIG_CFI_CLANG|^CONFIG_LTO" out/.config
-          echo "=== PHASE5 build Image (官方工具链) ==="
-          make -j$(nproc) ARCH=arm64 CC=$TC/bin/clang CROSS_COMPILE=$CROSS_COMPILE CLANG_TRIPLE=aarch64-linux-gnu- O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -50
+          grep -E "^CONFIG_MODVERSIONS|MODULE_SIG|^CONFIG_TRIM_UNUSED_KSYMS|^CONFIG_LOCALVERSION|^CONFIG_CFI_CLANG|^CONFIG_KSU" out/.config
+          echo "=== PHASE3 build Image (原厂源码,无补丁) ==="
+          make -j$(nproc) ARCH=arm64 CC=$TC/bin/clang CROSS_COMPILE=$CROSS_COMPILE CLANG_TRIPLE=aarch64-linux-gnu- O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" Image 2>&1 | tail -40
           E1=${PIPESTATUS[0]}
           echo "BUILD_EXIT=$E1"
           ls -la out/arch/arm64/boot/Image 2>&1
           echo "NEWVER=$(grep -a -o -E '6\.1\.[0-9]+-android[0-9]+-[0-9]+[a-z0-9-]*' out/arch/arm64/boot/Image 2>/dev/null | sort -u | head -3 | tr '\n' ' ')"
-          echo "=== PHASE6 build modules ==="
-          make -j$(nproc) ARCH=arm64 CC=$TC/bin/clang CROSS_COMPILE=$CROSS_COMPILE CLANG_TRIPLE=aarch64-linux-gnu- O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" modules 2>&1 | tail -20
+          echo "=== PHASE4 build modules ==="
+          make -j$(nproc) ARCH=arm64 CC=$TC/bin/clang CROSS_COMPILE=$CROSS_COMPILE CLANG_TRIPLE=aarch64-linux-gnu- O=out KCFLAGS="-Wno-error" HOSTCFLAGS="-Wno-error" modules 2>&1 | tail -15
           echo "MODULES_EXIT=${PIPESTATUS[0]}"
           echo "KO_COUNT=$(find out -name '*.ko' 2>/dev/null | wc -l)"
           tar -czf $W/modules.tgz $(find out -name '*.ko' 2>/dev/null) 2>/dev/null || true
-          ls -la $W/modules.tgz 2>/dev/null
+          cp out/Module.symvers $W/Module.symvers 2>/dev/null || true
+          ls -la $W/Module.symvers $W/modules.tgz 2>/dev/null
           SCRIPT
           bash /tmp/all.sh > $GITHUB_WORKSPACE/diag.txt 2>&1
-          tail -80 $GITHUB_WORKSPACE/diag.txt || true
+          tail -60 $GITHUB_WORKSPACE/diag.txt || true
 
       - name: publish-diag
         if: always()
@@ -111,8 +97,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-Image-susfs
+          name: kernel-Image-control
           path: |
             src/kernel_tree/out/arch/arm64/boot/Image
             modules.tgz
+            Module.symvers
           if-no-files-found: warn
